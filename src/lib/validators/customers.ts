@@ -108,25 +108,6 @@ export function validateCustomers(saftData: SaftFile): ValidationError[] {
       });
     }
 
-    // CUST_007: "Consumidor Final" NIF
-    if (cust.customerTaxID === GENERIC_CONSUMER_NIF) {
-      const isGenericCustomer =
-        cust.customerID.toLowerCase().includes("consumidor") ||
-        cust.companyName.toLowerCase().includes("consumidor");
-      if (!isGenericCustomer) {
-        errors.push({
-          code: "CUST_007",
-          severity: "error",
-          message: `NIF genérico '${GENERIC_CONSUMER_NIF}' usado com cliente nomeado '${cust.companyName}'.`,
-          explanation: "O NIF '999999990' só deve ser usado com 'Consumidor Final' genérico.",
-          path: `${path}.CustomerTaxID`,
-          section: "Customers",
-          documentId: cust.customerID,
-          autoFixable: false,
-        });
-      }
-    }
-
     // CUST_008: SelfBillingIndicator consistency
     if (cust.selfBillingIndicator === "1") {
       const hasFS = (saftData.sourceDocuments.salesInvoices?.invoices ?? []).some(
