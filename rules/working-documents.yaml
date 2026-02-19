@@ -1,0 +1,81 @@
+rules:
+  - id: WRK_001
+    name: Contagem Documentos
+    description: NumberOfEntries declarado difere da contagem real
+    severity: error
+    section: WRK
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: WRK_002
+    name: Totais Documentos
+    description: TotalDebit ou TotalCredit declarado difere da soma calculada
+    severity: error
+    section: WRK
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: WRK_003
+    name: Número Documento
+    description: DocumentNumber em falta
+    severity: critical
+    section: WRK
+    enabled: true
+
+  - id: WRK_004
+    name: Tipo Documento
+    description: WorkType inválido
+    severity: error
+    section: WRK
+    enabled: true
+
+  - id: WRK_005
+    name: Data Fora Período
+    description: WorkDate fora do período
+    severity: error
+    section: WRK
+    enabled: true
+
+  - id: WRK_006
+    name: ATCUD Documento
+    description: ATCUD em falta ou formato inválido
+    severity: critical
+    section: WRK
+    enabled: true
+
+  - id: WRK_007
+    name: Estado Documento
+    description: WorkStatus inválido (N, A, F)
+    severity: error
+    section: WRK
+    enabled: true
+
+  - id: WRK_008
+    name: Montante Negativo
+    description: CreditAmount ou DebitAmount negativo na linha
+    severity: error
+    section: WRK
+    enabled: true
+
+  - id: WRK_009
+    name: Cliente Inexistente
+    description: CustomerID não existe em MasterFiles
+    severity: error
+    section: WRK
+    enabled: true
+
+  - id: WRK_010
+    name: Imposto a Pagar
+    description: Cálculo do TaxPayable incorreto
+    severity: error
+    section: WRK
+    enabled: true
+
+  - id: WRK_011
+    name: Documento Duplicado
+    description: DocumentNumber duplicado
+    severity: error
+    section: WRK
+    enabled: true

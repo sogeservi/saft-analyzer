@@ -1,0 +1,91 @@
+rules:
+  - id: HDR_001
+    name: Versão SAF-T
+    description: AuditFileVersion em falta ou versão não suportada
+    severity: critical
+    section: HDR
+    enabled: true
+
+  - id: HDR_002
+    name: NIF Empresa
+    description: TaxRegistrationNumber (NIF) em falta ou inválido
+    severity: critical
+    section: HDR
+    enabled: true
+
+  - id: HDR_003
+    name: ID Empresa
+    description: CompanyID em falta ou não contém o NIF
+    severity: error
+    section: HDR
+    enabled: true
+
+  - id: HDR_004
+    name: Base Contabilística
+    description: TaxAccountingBasis em falta ou inválido
+    severity: error
+    section: HDR
+    enabled: true
+
+  - id: HDR_005
+    name: Ano Fiscal
+    description: FiscalYear em falta ou formato inválido
+    severity: error
+    section: HDR
+    enabled: true
+
+  - id: HDR_006
+    name: Datas Período
+    description: StartDate/EndDate com formato inválido ou fora de ordem
+    severity: error
+    section: HDR
+    enabled: true
+
+  - id: HDR_007
+    name: Período vs Ano Fiscal
+    description: Período de datas não coincide com o ano fiscal
+    severity: warning
+    section: HDR
+    enabled: true
+
+  - id: HDR_008
+    name: Data Criação
+    description: DateCreated em falta, formato inválido ou anterior a EndDate
+    severity: error
+    section: HDR
+    enabled: true
+
+  - id: HDR_009
+    name: Certificado Software
+    description: SoftwareCertificateNumber em falta ou 0 (não certificado)
+    severity: warning
+    section: HDR
+    enabled: true
+
+  - id: HDR_010
+    name: ID Produto
+    description: ProductID em falta
+    severity: info
+    section: HDR
+    enabled: true
+
+  - id: HDR_011
+    name: Moeda
+    description: CurrencyCode em falta ou código ISO 4217 inválido
+    severity: error
+    section: HDR
+    enabled: true
+
+  - id: HDR_012
+    name: Morada Empresa
+    description: CompanyAddress incompleta
+    severity: error
+    section: HDR
+    enabled: true
+
+  - id: HDR_013
+    name: Comentário Cabeçalho
+    description: HeaderComment excede 255 caracteres
+    severity: warning
+    section: HDR
+    enabled: true

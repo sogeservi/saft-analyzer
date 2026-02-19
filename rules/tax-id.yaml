@@ -1,0 +1,196 @@
+rules:
+  - id: TID_001
+    name: NIF Áustria
+    description: Formato NIF austríaco inválido (ATU + 8 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_002
+    name: NIF Bélgica
+    description: Formato NIF belga inválido (BE + 10 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_003
+    name: NIF Bulgária
+    description: Formato NIF búlgaro inválido (BG + 9-10 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_004
+    name: NIF Chipre
+    description: Formato NIF cipriota inválido (CY + 8 dígitos + letra)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_005
+    name: NIF República Checa
+    description: Formato NIF checo inválido (CZ + 8-10 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_006
+    name: NIF Alemanha
+    description: Formato NIF alemão inválido (DE + 9 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_007
+    name: NIF Dinamarca
+    description: Formato NIF dinamarquês inválido (DK + 8 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_008
+    name: NIF Estónia
+    description: Formato NIF estónio inválido (EE + 9 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_009
+    name: NIF Grécia
+    description: Formato NIF grego inválido (EL + 9 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_010
+    name: NIF Espanha
+    description: Formato NIF espanhol inválido
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_011
+    name: NIF Finlândia
+    description: Formato NIF finlandês inválido (FI + 8 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_012
+    name: NIF França
+    description: Formato NIF francês inválido (FR + 2 chars + 9 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_013
+    name: NIF Croácia
+    description: Formato NIF croata inválido (HR + 11 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_014
+    name: NIF Hungria
+    description: Formato NIF húngaro inválido (HU + 8 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_015
+    name: NIF Irlanda
+    description: Formato NIF irlandês inválido (IE + 8-9 chars)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_016
+    name: NIF Itália
+    description: Formato NIF italiano inválido (IT + 11 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_017
+    name: NIF Lituânia
+    description: Formato NIF lituano inválido (LT + 9-12 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_018
+    name: NIF Luxemburgo
+    description: Formato NIF luxemburguês inválido (LU + 8 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_019
+    name: NIF Letónia
+    description: Formato NIF letão inválido (LV + 11 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_020
+    name: NIF Malta
+    description: Formato NIF maltês inválido (MT + 8 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_021
+    name: NIF Países Baixos
+    description: Formato NIF neerlandês inválido (NL + 9 dígitos + B + 2 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_022
+    name: NIF Polónia
+    description: Formato NIF polaco inválido (PL + 10 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_023
+    name: NIF Portugal
+    description: Formato NIF português inválido (PT + 9 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_024
+    name: NIF Roménia
+    description: Formato NIF romeno inválido (RO + 2-10 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_025
+    name: NIF Suécia
+    description: Formato NIF sueco inválido (SE + 12 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_026
+    name: NIF Eslovénia
+    description: Formato NIF esloveno inválido (SI + 8 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_027
+    name: NIF Eslováquia
+    description: Formato NIF eslovaco inválido (SK + 10 dígitos)
+    severity: error
+    section: TID
+    enabled: true
+
+  - id: TID_100
+    name: Dígito Controlo NIF PT
+    description: Validação do dígito de controlo do NIF português falhou
+    severity: error
+    section: TID
+    enabled: true

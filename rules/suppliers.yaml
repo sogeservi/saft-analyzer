@@ -1,0 +1,44 @@
+rules:
+  - id: SUPP_001
+    name: ID Fornecedor Duplicado
+    description: SupplierID duplicado no ficheiro
+    severity: critical
+    section: SUPP
+    enabled: true
+
+  - id: SUPP_002
+    name: NIF Fornecedor em Falta
+    description: SupplierTaxID em falta
+    severity: critical
+    section: SUPP
+    enabled: true
+
+  - id: SUPP_003
+    name: Dígito Controlo NIF
+    description: Dígito de controlo do NIF português inválido
+    severity: error
+    section: SUPP
+    enabled: true
+
+  - id: SUPP_004
+    name: Prefixo País NIF
+    description: NIF de fornecedor EU sem prefixo de país
+    severity: error
+    section: SUPP
+    enabled: true
+    fix:
+      type: prefix
+
+  - id: SUPP_006
+    name: Morada Incompleta
+    description: BillingAddress do fornecedor incompleta
+    severity: warning
+    section: SUPP
+    enabled: true
+
+  - id: SUPP_007
+    name: Fornecedor Órfão
+    description: Fornecedor não referenciado em nenhum documento
+    severity: info
+    section: SUPP
+    enabled: true

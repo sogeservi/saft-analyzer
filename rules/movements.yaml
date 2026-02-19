@@ -1,0 +1,95 @@
+rules:
+  - id: MOV_001
+    name: Contagem Linhas Movimento
+    description: NumberOfMovementLines declarado difere da contagem real
+    severity: error
+    section: MOV
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: MOV_002
+    name: Quantidade Total
+    description: TotalQuantityIssued declarado difere da soma calculada
+    severity: error
+    section: MOV
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: MOV_003
+    name: Número Documento
+    description: DocumentNumber em falta
+    severity: critical
+    section: MOV
+    enabled: true
+
+  - id: MOV_004
+    name: Tipo Movimento
+    description: MovementType inválido (GR, GT, GA, GC, GD)
+    severity: error
+    section: MOV
+    enabled: true
+
+  - id: MOV_005
+    name: Data Fora Período
+    description: MovementDate fora do período
+    severity: error
+    section: MOV
+    enabled: true
+
+  - id: MOV_006
+    name: ATCUD Movimento
+    description: ATCUD em falta ou formato inválido
+    severity: critical
+    section: MOV
+    enabled: true
+
+  - id: MOV_007
+    name: Estado Movimento
+    description: MovementStatus inválido (N, T, A, F)
+    severity: error
+    section: MOV
+    enabled: true
+
+  - id: MOV_008
+    name: Expedição/Receção
+    description: Movimento sem ShipFrom nem ShipTo
+    severity: error
+    section: MOV
+    enabled: true
+
+  - id: MOV_009
+    name: Hora Início Transporte
+    description: Guia de transporte (GT) sem MovementStartTime
+    severity: warning
+    section: MOV
+    enabled: true
+
+  - id: MOV_010
+    name: Linhas Movimento
+    description: Movimento sem linhas ou quantidade <= 0
+    severity: error
+    section: MOV
+    enabled: true
+
+  - id: MOV_011
+    name: Produto Inexistente
+    description: ProductCode não existe em MasterFiles
+    severity: error
+    section: MOV
+    enabled: true
+
+  - id: MOV_012
+    name: Entidade Inexistente
+    description: CustomerID ou SupplierID não existe em MasterFiles
+    severity: error
+    section: MOV
+    enabled: true
+
+  - id: MOV_014
+    name: Documento Duplicado
+    description: DocumentNumber duplicado
+    severity: error
+    section: MOV
+    enabled: true

@@ -1,0 +1,42 @@
+rules:
+  - id: PROD_001
+    name: Código Produto Duplicado
+    description: ProductCode duplicado no ficheiro
+    severity: critical
+    section: PROD
+    enabled: true
+
+  - id: PROD_002
+    name: Tipo Produto
+    description: ProductType em falta ou inválido (P, S, O, E, I)
+    severity: error
+    section: PROD
+    enabled: true
+
+  - id: PROD_003
+    name: Descrição Produto
+    description: ProductDescription em falta ou vazia
+    severity: error
+    section: PROD
+    enabled: true
+
+  - id: PROD_004
+    name: Código Barras
+    description: ProductNumberCode em falta
+    severity: warning
+    section: PROD
+    enabled: true
+
+  - id: PROD_005
+    name: Produto Órfão
+    description: Produto não referenciado em nenhum documento
+    severity: info
+    section: PROD
+    enabled: true
+
+  - id: PROD_006
+    name: Grupo Conflituoso
+    description: Produto aparece em grupos diferentes
+    severity: warning
+    section: PROD
+    enabled: true

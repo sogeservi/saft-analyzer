@@ -1,0 +1,56 @@
+rules:
+  - id: XREF_001
+    name: Cliente em Documento
+    description: CustomerID referenciado em documento não existe em MasterFiles
+    severity: error
+    section: XREF
+    enabled: true
+
+  - id: XREF_002
+    name: Fornecedor em Documento
+    description: SupplierID referenciado em documento não existe em MasterFiles
+    severity: error
+    section: XREF
+    enabled: true
+
+  - id: XREF_003
+    name: Produto em Documento
+    description: ProductCode referenciado em documento não existe em MasterFiles
+    severity: error
+    section: XREF
+    enabled: true
+
+  - id: XREF_004
+    name: Imposto em Documento
+    description: Combinação de imposto referenciada não existe em TaxTable
+    severity: error
+    section: XREF
+    enabled: true
+
+  - id: XREF_005
+    name: Conta Contabilística
+    description: AccountID referenciado em GL não existe em GeneralLedgerAccounts
+    severity: error
+    section: XREF
+    enabled: true
+
+  - id: XREF_006
+    name: Referência NC/ND
+    description: Referência de NC/ND não existe em SalesInvoices
+    severity: warning
+    section: XREF
+    enabled: true
+
+  - id: XREF_007
+    name: Referência Pagamento
+    description: SourceDocumentID do pagamento não existe em SalesInvoices
+    severity: warning
+    section: XREF
+    enabled: true
+
+  - id: XREF_008
+    name: Dados Mestres Órfãos
+    description: Dados mestres não referenciados em nenhum documento
+    severity: info
+    section: XREF
+    enabled: true

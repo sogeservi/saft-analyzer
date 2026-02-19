@@ -1,0 +1,35 @@
+rules:
+  - id: XML_001
+    name: XML Inválido
+    description: Ficheiro XML mal formado ou não é XML válido
+    severity: critical
+    section: XML
+    enabled: true
+
+  - id: XML_002
+    name: Encoding Inconsistente
+    description: Encoding declarado difere do encoding detetado
+    severity: error
+    section: XML
+    enabled: true
+
+  - id: XML_003
+    name: UTF-8 BOM
+    description: Ficheiro UTF-8 com BOM detetado
+    severity: warning
+    section: XML
+    enabled: true
+
+  - id: XML_004
+    name: Namespace SAF-T
+    description: Namespace XML não corresponde à versão SAF-T esperada
+    severity: error
+    section: XML
+    enabled: true
+
+  - id: XML_005
+    name: Encoding Não Suportado
+    description: Encoding do ficheiro não suportado
+    severity: error
+    section: XML
+    enabled: true

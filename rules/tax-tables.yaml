@@ -1,0 +1,49 @@
+rules:
+  - id: TAX_001
+    name: Tabela Impostos Vazia
+    description: TaxTable vazia ou em falta
+    severity: critical
+    section: TAX
+    enabled: true
+
+  - id: TAX_002
+    name: Tipo Imposto
+    description: TaxType inválido (deve ser IVA, IS ou NS)
+    severity: error
+    section: TAX
+    enabled: true
+
+  - id: TAX_003
+    name: Região Fiscal
+    description: TaxCountryRegion inválido para regiões portuguesas
+    severity: error
+    section: TAX
+    enabled: true
+
+  - id: TAX_004
+    name: Código IVA
+    description: TaxCode inválido para IVA (RED, INT, NOR, ISE, OUT)
+    severity: error
+    section: TAX
+    enabled: true
+
+  - id: TAX_005
+    name: Percentagem/Montante
+    description: TaxPercentage e TaxAmount ambos em falta ou negativo
+    severity: error
+    section: TAX
+    enabled: true
+
+  - id: TAX_006
+    name: Taxa IVA Conhecida
+    description: Taxa IVA não corresponde a taxas portuguesas conhecidas
+    severity: warning
+    section: TAX
+    enabled: true
+
+  - id: TAX_007
+    name: Entrada Duplicada
+    description: Entrada de imposto duplicada (TaxType+Region+Code)
+    severity: error
+    section: TAX
+    enabled: true

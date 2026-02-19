@@ -1,0 +1,74 @@
+rules:
+  - id: CUST_001
+    name: ID Cliente Duplicado
+    description: CustomerID duplicado no ficheiro
+    severity: critical
+    section: CUST
+    enabled: true
+
+  - id: CUST_002
+    name: NIF Cliente em Falta
+    description: CustomerTaxID em falta
+    severity: critical
+    section: CUST
+    enabled: true
+
+  - id: CUST_003
+    name: Dígito Controlo NIF
+    description: Dígito de controlo do NIF português inválido
+    severity: error
+    section: CUST
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: CUST_004
+    name: Prefixo País NIF
+    description: NIF de cliente EU sem prefixo de país
+    severity: error
+    section: CUST
+    enabled: true
+    fix:
+      type: prefix
+
+  - id: CUST_006
+    name: NIF Não-EU
+    description: Cliente fora da EU, NIF não validável automaticamente
+    severity: warning
+    section: CUST
+    enabled: true
+
+  - id: CUST_007
+    name: Consumidor Final Nomeado
+    description: NIF genérico (999999990) usado com nome de cliente
+    severity: error
+    section: CUST
+    enabled: true
+
+  - id: CUST_008
+    name: Autofaturação
+    description: SelfBillingIndicator=1 sem faturas simplificadas (FS)
+    severity: error
+    section: CUST
+    enabled: true
+
+  - id: CUST_009
+    name: Morada Incompleta
+    description: BillingAddress do cliente incompleta
+    severity: warning
+    section: CUST
+    enabled: true
+
+  - id: CUST_010
+    name: Código País
+    description: Código de país não é ISO 3166-1 alpha-2 válido
+    severity: warning
+    section: CUST
+    enabled: true
+
+  - id: CUST_011
+    name: Cliente Órfão
+    description: Cliente não referenciado em nenhum documento
+    severity: info
+    section: CUST
+    enabled: true

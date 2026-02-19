@@ -1,0 +1,28 @@
+rules:
+  - id: HASH_001
+    name: Formato Hash
+    description: Hash em falta ou formato inválido (172 caracteres Base64)
+    severity: critical
+    section: HASH
+    enabled: true
+
+  - id: HASH_005
+    name: Hash Zero
+    description: Hash = 0 (software não certificado ou importação)
+    severity: warning
+    section: HASH
+    enabled: true
+
+  - id: HASH_006
+    name: Tipos Misturados na Série
+    description: Série contém múltiplos tipos de documento
+    severity: error
+    section: HASH
+    enabled: true
+
+  - id: HASH_008
+    name: Ordem Cronológica
+    description: SystemEntryDate fora de ordem na cadeia
+    severity: error
+    section: HASH
+    enabled: true

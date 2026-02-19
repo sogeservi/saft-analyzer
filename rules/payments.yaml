@@ -1,0 +1,118 @@
+rules:
+  - id: PAY_001
+    name: Contagem Pagamentos
+    description: NumberOfEntries declarado difere da contagem real
+    severity: error
+    section: PAY
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: PAY_002
+    name: Total Débito Pagamentos
+    description: TotalDebit declarado difere da soma calculada
+    severity: error
+    section: PAY
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: PAY_003
+    name: Total Crédito Pagamentos
+    description: TotalCredit declarado difere da soma calculada
+    severity: error
+    section: PAY
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: PAY_004
+    name: Referência Pagamento
+    description: PaymentRefNo em falta
+    severity: critical
+    section: PAY
+    enabled: true
+
+  - id: PAY_005
+    name: Tipo Pagamento
+    description: PaymentType inválido (RC, RG)
+    severity: error
+    section: PAY
+    enabled: true
+
+  - id: PAY_006
+    name: Data Fora Período
+    description: TransactionDate fora do período
+    severity: error
+    section: PAY
+    enabled: true
+
+  - id: PAY_007
+    name: Data Sistema
+    description: SystemEntryDate anterior a TransactionDate
+    severity: error
+    section: PAY
+    enabled: true
+
+  - id: PAY_008
+    name: ATCUD Pagamento
+    description: ATCUD em falta ou formato inválido
+    severity: critical
+    section: PAY
+    enabled: true
+
+  - id: PAY_009
+    name: Estado Pagamento
+    description: PaymentStatus inválido (N, A)
+    severity: error
+    section: PAY
+    enabled: true
+
+  - id: PAY_010
+    name: Linhas Pagamento
+    description: Pagamento sem linhas
+    severity: error
+    section: PAY
+    enabled: true
+
+  - id: PAY_011
+    name: Montante Negativo
+    description: CreditAmount ou DebitAmount negativo na linha
+    severity: error
+    section: PAY
+    enabled: true
+
+  - id: PAY_012
+    name: Método Pagamento
+    description: PaymentMethod em falta ou PaymentMechanism inválido
+    severity: error
+    section: PAY
+    enabled: true
+
+  - id: PAY_014
+    name: Imposto a Pagar
+    description: Cálculo do TaxPayable incorreto
+    severity: error
+    section: PAY
+    enabled: true
+
+  - id: PAY_015
+    name: Referência Fatura
+    description: SourceDocumentID referência fatura inexistente
+    severity: error
+    section: PAY
+    enabled: true
+
+  - id: PAY_016
+    name: Cliente Inexistente
+    description: CustomerID não existe em MasterFiles
+    severity: error
+    section: PAY
+    enabled: true
+
+  - id: PAY_018
+    name: Pagamento Duplicado
+    description: PaymentRefNo duplicado
+    severity: error
+    section: PAY
+    enabled: true

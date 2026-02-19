@@ -1,0 +1,90 @@
+rules:
+  - id: GL_001
+    name: Contagem Lançamentos
+    description: NumberOfEntries declarado difere da contagem real
+    severity: error
+    section: GL
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: GL_002
+    name: Total Débito
+    description: TotalDebit declarado difere da soma calculada
+    severity: error
+    section: GL
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: GL_003
+    name: Total Crédito
+    description: TotalCredit declarado difere da soma calculada
+    severity: error
+    section: GL
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: GL_004
+    name: Transação Equilibrada
+    description: Transação não equilibrada (débito != crédito)
+    severity: error
+    section: GL
+    enabled: true
+
+  - id: GL_005
+    name: Data Transação
+    description: TransactionDate fora do período
+    severity: error
+    section: GL
+    enabled: true
+
+  - id: GL_006
+    name: Data Sistema
+    description: SystemEntryDate anterior a TransactionDate
+    severity: error
+    section: GL
+    enabled: true
+
+  - id: GL_007
+    name: Conta Inexistente
+    description: AccountID referência conta inexistente
+    severity: error
+    section: GL
+    enabled: true
+
+  - id: GL_009
+    name: ID Transação Duplicado
+    description: TransactionID duplicado dentro do diário
+    severity: error
+    section: GL
+    enabled: true
+
+  - id: GL_012
+    name: Montante Negativo
+    description: DebitAmount ou CreditAmount negativo
+    severity: error
+    section: GL
+    enabled: true
+
+  - id: GL_014
+    name: Saldo Classe 6/7
+    description: Conta classe 6/7 com saldo de fecho não nulo
+    severity: error
+    section: GL
+    enabled: true
+
+  - id: GL_015
+    name: Balancete Equilibrado
+    description: Balancete não equilibrado (débitos != créditos)
+    severity: error
+    section: GL
+    enabled: true
+
+  - id: GL_016
+    name: Tipo Transação
+    description: TransactionType inválido (N, R, A, J)
+    severity: error
+    section: GL
+    enabled: true

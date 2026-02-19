@@ -1,0 +1,302 @@
+rules:
+  - id: INV_001
+    name: Contagem Faturas
+    description: NumberOfEntries declarado difere da contagem real
+    severity: error
+    section: INV
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: INV_002
+    name: Total Débito Faturas
+    description: TotalDebit declarado difere da soma calculada
+    severity: error
+    section: INV
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: INV_003
+    name: Total Crédito Faturas
+    description: TotalCredit declarado difere da soma calculada
+    severity: error
+    section: INV
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: INV_004
+    name: Número Fatura
+    description: InvoiceNo em falta
+    severity: critical
+    section: INV
+    enabled: true
+
+  - id: INV_005
+    name: Data Fatura
+    description: InvoiceDate em falta
+    severity: critical
+    section: INV
+    enabled: true
+
+  - id: INV_006
+    name: Tipo Fatura
+    description: InvoiceType em falta ou inválido
+    severity: critical
+    section: INV
+    enabled: true
+
+  - id: INV_007
+    name: Hash Fatura
+    description: Hash em falta
+    severity: critical
+    section: INV
+    enabled: true
+
+  - id: INV_008
+    name: ATCUD Fatura
+    description: ATCUD em falta ou formato inválido
+    severity: critical
+    section: INV
+    enabled: true
+
+  - id: INV_009
+    name: ATCUD Série Inconsistente
+    description: ATCUD inconsistente dentro da série
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_010
+    name: ATCUD Número Sequencial
+    description: Número sequencial ATCUD difere do número da fatura
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_011
+    name: Data Entrada Sistema
+    description: SystemEntryDate em falta
+    severity: critical
+    section: INV
+    enabled: true
+
+  - id: INV_012
+    name: Estado Documento
+    description: DocumentStatus em falta
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_013
+    name: Estado Fatura Inválido
+    description: InvoiceStatus inválido (N, S, A, R, F)
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_014
+    name: Linhas Fatura
+    description: Fatura sem linhas
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_015
+    name: Quantidade Linha
+    description: Quantidade na linha <= 0
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_016
+    name: Crédito Negativo
+    description: CreditAmount negativo na linha
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_017
+    name: Débito Negativo
+    description: DebitAmount negativo na linha
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_018
+    name: Crédito/Débito Linha
+    description: Linha sem CreditAmount nem DebitAmount, ou com ambos
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_019
+    name: Imposto Linha
+    description: Informação fiscal incompleta na linha
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_020
+    name: Total Bruto Documento
+    description: GrossTotal declarado difere da soma das linhas
+    severity: error
+    section: INV
+    enabled: true
+    fix:
+      type: recalculate
+
+  - id: INV_021
+    name: Total Líquido
+    description: Cálculo do NetTotal incorreto
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_022
+    name: Imposto a Pagar
+    description: Cálculo do TaxPayable incorreto
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_023
+    name: Total Zero com Linhas
+    description: GrossTotal = 0 mas linhas com valores
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_024
+    name: Soma Totais Globais
+    description: Soma dos GrossTotal difere do total global
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_025
+    name: Data Fora Período
+    description: InvoiceDate fora do período
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_026
+    name: Data Sistema vs Fatura
+    description: SystemEntryDate anterior a InvoiceDate
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_027
+    name: Numeração Sequencial
+    description: Lacunas na numeração sequencial da série
+    severity: warning
+    section: INV
+    enabled: true
+
+  - id: INV_028
+    name: Fatura Duplicada
+    description: InvoiceNo duplicado
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_029
+    name: Cliente Inexistente
+    description: CustomerID não existe em MasterFiles
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_030
+    name: Produto Inexistente
+    description: ProductCode não existe em MasterFiles
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_031
+    name: Imposto Inexistente
+    description: Combinação de imposto não existe em TaxTable
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_032
+    name: Isenção IVA
+    description: Linha com IVA 0% sem motivo ou código de isenção
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_034
+    name: Origem Faturação
+    description: SourceBilling inválido (P, I, M)
+    severity: warning
+    section: INV
+    enabled: true
+
+  - id: INV_035
+    name: Código EAC
+    description: EACCode inválido (deve ter 5 dígitos)
+    severity: warning
+    section: INV
+    enabled: true
+
+  - id: INV_036
+    name: Referência NC/ND
+    description: Nota de crédito/débito sem referência ao documento original
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_037
+    name: Preço vs Montante
+    description: UnitPrice * Quantity diverge significativamente do montante
+    severity: warning
+    section: INV
+    enabled: true
+
+  - id: INV_041
+    name: Período vs Data
+    description: Period não corresponde ao mês da InvoiceDate
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_042
+    name: Controlo Hash
+    description: HashControl em falta
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_043
+    name: Regimes Especiais
+    description: SpecialRegimes incompleto ou com valores inválidos
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_044
+    name: Limite FS
+    description: Fatura simplificada (FS) com GrossTotal > 1000 EUR
+    severity: warning
+    section: INV
+    enabled: true
+
+  - id: INV_045
+    name: Consumidor Final
+    description: Fatura não-FS com NIF genérico (999999990)
+    severity: error
+    section: INV
+    enabled: true
+
+  - id: INV_046
+    name: Código Isenção
+    description: TaxExemptionCode inválido
+    severity: error
+    section: INV
+    enabled: true
