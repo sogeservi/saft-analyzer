@@ -2,6 +2,7 @@ import type { ValidationError } from "../types/errors";
 import type { SaftFile, SaftInvoice } from "../types/saft";
 
 const VALID_INVOICE_TYPES = ["FT", "FS", "FR", "ND", "NC", "VD", "TV", "TD", "AA", "DA"];
+const DEPRECATED_INVOICE_TYPES = new Set(["VD", "TV", "TD", "AA", "DA"]);
 const VALID_INVOICE_STATUSES = ["N", "S", "A", "R", "F"];
 const VALID_SOURCE_BILLING = ["P", "I", "M"];
 const ATCUD_RE = /^[A-Z0-9]{8,}-[0-9]+$/;
@@ -10,7 +11,8 @@ const LINE_TOLERANCE = 0.01;
 const GLOBAL_TOLERANCE = 1.00;
 const VALID_EXEMPTION_CODES = new Set([
   "M01","M02","M04","M05","M06","M07","M09","M10","M11","M12","M13","M14","M15","M16",
-  "M19","M20","M21","M25","M26","M30","M31","M32","M33","M34","M40","M41","M42","M43","M99",
+  "M19","M20","M21","M25","M26","M30","M31","M32","M33","M34",
+  "M40","M41","M42","M43","M44","M45","M46","M99",
 ]);
 
 export function validateSalesInvoices(saftData: SaftFile): ValidationError[] {
@@ -143,6 +145,15 @@ function validateSingleInvoice(
     errors.push(e("INV_006", "critical",
       `InvoiceType '${inv.invoiceType}' inválido. Valores válidos: ${VALID_INVOICE_TYPES.join(", ")}.`,
       `${path}.InvoiceType`, inv.invoiceNo, false));
+  }
+
+  // INV_047: Deprecated invoice types (VD, TV, TD, AA, DA removed since 2013-01-01)
+  if (inv.invoiceType && DEPRECATED_INVOICE_TYPES.has(inv.invoiceType)) {
+    if (inv.invoiceDate && inv.invoiceDate >= "2013-01-01") {
+      errors.push(e("INV_047", "warning",
+        `Tipo '${inv.invoiceType}' na fatura '${inv.invoiceNo}' está descontinuado desde 01-01-2013. Usar FT, FS, FR, ND ou NC.`,
+        `${path}.InvoiceType`, inv.invoiceNo, false));
+    }
   }
 
   // INV_007: Hash present

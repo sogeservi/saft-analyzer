@@ -300,3 +300,10 @@ rules:
     severity: error
     section: INV
     enabled: true
+
+  - id: INV_047
+    name: Tipo Documento Descontinuado
+    description: InvoiceType descontinuado (VD, TV, TD, AA, DA) desde 2013
+    severity: warning
+    section: INV
+    enabled: true

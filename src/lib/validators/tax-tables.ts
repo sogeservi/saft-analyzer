@@ -5,10 +5,21 @@ const VALID_TAX_TYPES = ["IVA", "IS", "NS"];
 const VALID_PT_REGIONS = ["PT", "PT-AC", "PT-MA"];
 const VALID_IVA_CODES = ["RED", "INT", "NOR", "ISE", "OUT"];
 
+// Current rates (2024+): PT=23/13/6, PT-AC=16/9/4, PT-MA=22/12/4
+// Historical rates included to avoid false positives on older files
 const KNOWN_PT_RATES: Record<string, number[]> = {
+  // Standard: 16→17→19→21→20→21→23 | Intermediate: 12→13 | Reduced: 8→5→6
   "PT": [0, 5, 6, 8, 12, 13, 16, 17, 19, 20, 21, 23],
-  "PT-AC": [0, 4, 5, 9, 10, 15, 16, 18],
-  "PT-MA": [0, 4, 5, 9, 12, 15, 16, 22],
+  // Standard: 8→12→15→18→16 | Intermediate: 5→9→10 | Reduced: 4→5→4
+  "PT-AC": [0, 4, 5, 8, 9, 10, 12, 15, 16, 18],
+  // Standard: 8→12→15→22 | Intermediate: 5→9→12 | Reduced: 4→5→4
+  "PT-MA": [0, 4, 5, 8, 9, 12, 15, 22],
+};
+
+const CURRENT_PT_RATES: Record<string, { standard: number; intermediate: number; reduced: number }> = {
+  "PT": { standard: 23, intermediate: 13, reduced: 6 },
+  "PT-AC": { standard: 16, intermediate: 9, reduced: 4 },
+  "PT-MA": { standard: 22, intermediate: 12, reduced: 4 },
 };
 
 export function validateTaxTables(saftData: SaftFile): ValidationError[] {
@@ -115,12 +126,16 @@ export function validateTaxTables(saftData: SaftFile): ValidationError[] {
       entry.taxCountryRegion.startsWith("PT")
     ) {
       const knownRates = KNOWN_PT_RATES[entry.taxCountryRegion];
+      const currentRates = CURRENT_PT_RATES[entry.taxCountryRegion];
       if (knownRates && !knownRates.includes(entry.taxPercentage!)) {
+        const currentStr = currentRates
+          ? `Taxas atuais: ${currentRates.reduced}% (RED), ${currentRates.intermediate}% (INT), ${currentRates.standard}% (NOR)`
+          : "";
         errors.push({
           code: "TAX_006",
           severity: "warning",
-          message: `Taxa IVA ${entry.taxPercentage}% para ${entry.taxCountryRegion} não corresponde às taxas conhecidas (${knownRates.join(", ")}%).`,
-          explanation: "A taxa pode ser válida para regimes especiais ou taxas históricas, mas requer verificação.",
+          message: `Taxa IVA ${entry.taxPercentage}% para ${entry.taxCountryRegion} não corresponde a nenhuma taxa portuguesa conhecida (atual ou histórica).`,
+          explanation: `${currentStr}. Taxas conhecidas (atuais + históricas): ${knownRates.join(", ")}%.`,
           path: `${path}.TaxPercentage`,
           section: "TaxTables",
           documentId: entryId,

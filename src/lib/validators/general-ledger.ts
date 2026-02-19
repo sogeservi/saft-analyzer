@@ -255,16 +255,20 @@ export function validateGeneralLedger(saftData: SaftFile): ValidationError[] {
     });
   }
 
-  // GL_014: Class 6/7 year-end zeroing
+  // GL_014: Class 6/7 year-end zeroing (only for full fiscal year files)
+  const isFullYear = saftData.header.endDate?.endsWith("-12-31") ||
+    saftData.header.endDate?.endsWith("-12-30");
   for (const acc of accounts) {
     const classDigit = acc.accountID.charAt(0);
     if (classDigit === "6" || classDigit === "7") {
       if (acc.closingDebitBalance !== 0 || acc.closingCreditBalance !== 0) {
         errors.push({
           code: "GL_014",
-          severity: "error",
+          severity: isFullYear ? "error" : "info",
           message: `Conta ${acc.accountID} (classe ${classDigit}) com saldo final não nulo: D=${acc.closingDebitBalance.toFixed(2)}, C=${acc.closingCreditBalance.toFixed(2)}.`,
-          explanation: "Contas de classe 6 (gastos) e 7 (rendimentos) devem ter saldo final zero no encerramento do exercício.",
+          explanation: isFullYear
+            ? "Contas de classe 6 (gastos) e 7 (rendimentos) devem ter saldo final zero no encerramento do exercício."
+            : "Contas de classe 6/7 com saldo não nulo. Poderá ser normal em ficheiros que não cobrem o exercício fiscal completo.",
           path: `MasterFiles.GeneralLedgerAccounts.Account[${acc.accountID}]`,
           section: "GeneralLedger",
           documentId: acc.accountID,

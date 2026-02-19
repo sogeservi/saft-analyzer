@@ -110,15 +110,16 @@ export function validateCustomers(saftData: SaftFile): ValidationError[] {
 
     // CUST_008: SelfBillingIndicator consistency
     if (cust.selfBillingIndicator === "1") {
-      const hasFS = (saftData.sourceDocuments.salesInvoices?.invoices ?? []).some(
-        (inv) => inv.customerID === cust.customerID && inv.invoiceType === "FS",
+      const hasSelfBilled = (saftData.sourceDocuments.salesInvoices?.invoices ?? []).some(
+        (inv) => inv.customerID === cust.customerID &&
+          inv.specialRegimes?.selfBillingIndicator === "1",
       );
-      if (!hasFS) {
+      if (!hasSelfBilled) {
         errors.push({
           code: "CUST_008",
-          severity: "error",
-          message: `Cliente '${cust.customerID}' tem SelfBillingIndicator=1 mas não existem faturas simplificadas (FS) associadas.`,
-          explanation: "Se SelfBillingIndicator é 1, devem existir autofaturas correspondentes.",
+          severity: "warning",
+          message: `Cliente '${cust.customerID}' tem SelfBillingIndicator=1 mas não existem autofaturas (SpecialRegimes.SelfBillingIndicator=1) associadas.`,
+          explanation: "Se o cliente tem acordo de autofaturação, devem existir documentos com SelfBillingIndicator=1 nos SpecialRegimes.",
           path: `${path}.SelfBillingIndicator`,
           section: "Customers",
           documentId: cust.customerID,
