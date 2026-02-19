@@ -58,16 +58,18 @@ export function validateSalesInvoices(saftData: SaftFile): ValidationError[] {
       `${basePath}.TotalCredit`, undefined, true));
   }
 
-  // INV_024: Global file total vs sum of document NetTotals
-  let sumNet = 0;
+  // INV_024: Global file total vs signed sum of document line amounts
+  let signedDocSum = 0;
   for (const inv of si.invoices) {
     if (inv.documentStatus.invoiceStatus === "A") continue;
-    sumNet += inv.documentTotals.netTotal;
+    for (const line of inv.lines) {
+      signedDocSum += (line.creditAmount ?? 0) - (line.debitAmount ?? 0);
+    }
   }
   const declaredNet = si.totalCredit - si.totalDebit;
-  if (Math.abs(declaredNet - sumNet) > GLOBAL_TOLERANCE && sumNet > 0) {
+  if (Math.abs(declaredNet - signedDocSum) > GLOBAL_TOLERANCE) {
     errors.push(e("INV_024", "error",
-      `Soma dos NetTotal dos documentos (${sumNet.toFixed(2)}) difere do total global (${declaredNet.toFixed(2)}).`,
+      `Soma líquida dos documentos (${signedDocSum.toFixed(2)}) difere do total global (${declaredNet.toFixed(2)}).`,
       `${basePath}`, undefined, false));
   }
 
