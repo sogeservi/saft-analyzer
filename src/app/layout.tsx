@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { resolveLocale } from "@/lib/locale";
 import { headers } from "next/headers";
-import { Building2, Github } from "lucide-react";
+import { Github } from "lucide-react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -47,11 +47,19 @@ export default async function RootLayout({
                   href="https://sogeservi.pt"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={locale === "pt" ? "Site da SogeServi (abre num novo separador)" : "SogeServi website (opens in a new tab)"}
+                  aria-label={locale === "pt" ? "Site da Sogeservi (abre num novo separador)" : "Sogeservi website (opens in a new tab)"}
                   className="inline-flex items-center gap-2 rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
-                  <Building2 className="size-4" aria-hidden="true" />
-                  <span>Made by SogeServi</span>
+                  <span
+                    aria-hidden="true"
+                    className="size-4 shrink-0 bg-left bg-no-repeat"
+                    style={{
+                      backgroundImage:
+                        "url(https://sogeservi.pt/assets/media/sogeservi_logo_horizontal-DWSqnXpn.png)",
+                      backgroundSize: "auto 16px",
+                    }}
+                  />
+                  <span>{locale === "pt" ? "Feito pela Sogeservi" : "Made by Sogeservi"}</span>
                 </a>
                 <a
                   href="https://github.com/sogeservi/saft-analyzer"
