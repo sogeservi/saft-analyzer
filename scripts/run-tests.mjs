@@ -12,7 +12,6 @@ try {
   const testModules = [
     { name: "format", path: ["src", "lib", "format.ts"] },
     { name: "financial-activity", path: ["src", "lib", "financial-activity.ts"] },
-    { name: "client-ip", path: ["src", "lib", "server", "client-ip.ts"] },
   ];
 
   for (const { name, path } of testModules) {

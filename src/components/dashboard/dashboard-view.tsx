@@ -16,7 +16,6 @@ import {
   MonitorDown,
 } from "lucide-react";
 import { APP_BUILD_INFO } from "@/lib/build-info";
-import { ShareDialog } from "@/components/export/share-dialog";
 import { useLocale } from "@/lib/i18n";
 
 interface DashboardViewProps {
@@ -142,7 +141,6 @@ export function DashboardView({
           </div>
           <div className="flex shrink-0 gap-2 [&_button]:border-white/30 [&_button]:bg-white/10 [&_button]:text-white [&_button:hover]:bg-white/20 [&_button:hover]:text-white [&_button]:shadow-none [&_button]:focus-visible:ring-white/70">
             <ExportMenu result={result} />
-            <ShareDialog result={result} />
           </div>
         </div>
         <p className="mt-3 text-right text-xs text-slate-400">

@@ -232,7 +232,7 @@ export function buildPdfDefinition(result: AnalysisResult): TDocumentDefinitions
   return {
     pageSize: "A4",
     pageMargins: [32, 42, 32, 36],
-    defaultStyle: { fontSize: 8, font: "Helvetica", color: "#1F2937" },
+    defaultStyle: { fontSize: 8, font: "Roboto", color: "#1F2937" },
     styles: {
       title: { fontSize: 16, bold: true, color: "#0F172A" },
       sectionTitle: { fontSize: 11, bold: true, color: "#0F172A", margin: [0, 8, 0, 4] },

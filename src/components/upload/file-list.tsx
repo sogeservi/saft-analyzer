@@ -8,8 +8,7 @@ import { cn } from "@/lib/utils";
 import type { AnalysisResult } from "@/lib/types/analysis";
 import { useLocale } from "@/lib/i18n";
 
-export type FileStatus = "pending" | "uploading" | "complete" | "error";
-export type UploadStage = "queue" | "upload" | "processing";
+export type FileStatus = "pending" | "analyzing" | "complete" | "error";
 
 export interface XmlUploadError {
   kind: "xml";
@@ -24,9 +23,7 @@ export interface FileEntry {
   name: string;
   size: number;
   status: FileStatus;
-  stage: UploadStage;
-  queuePosition: number | null;
-  uploadProgress: number;
+  progress: number;
   result: AnalysisResult | null;
   error: string | XmlUploadError | null;
 }
@@ -46,7 +43,7 @@ const STATUS_CONFIG: Record<
   }
 > = {
   pending: { label: "Pendente", variant: "secondary", icon: FileText },
-  uploading: { label: "A analisar…", variant: "outline", icon: Loader2 },
+  analyzing: { label: "A analisar…", variant: "outline", icon: Loader2 },
   complete: { label: "Concluído", variant: "default", icon: CheckCircle2 },
   error: { label: "Erro", variant: "destructive", icon: AlertCircle },
 };
@@ -74,7 +71,7 @@ export function FileList({ files, onRemove, disabled }: FileListProps) {
                 <Icon
                   className={cn(
                     "size-3",
-                    entry.status === "uploading" && "animate-spin",
+                    entry.status === "analyzing" && "animate-spin",
                   )}
                 />
                 {t(config.label)}
@@ -83,7 +80,7 @@ export function FileList({ files, onRemove, disabled }: FileListProps) {
                 variant="ghost"
                 size="icon-xs"
                 onClick={() => onRemove(entry.id)}
-                disabled={disabled || entry.status === "uploading"}
+                disabled={disabled || entry.status === "analyzing"}
                 aria-label={`${t("Remover ficheiro")} ${entry.name}`}
               >
                 <X className="size-3" />

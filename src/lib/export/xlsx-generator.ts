@@ -7,7 +7,7 @@ import {
   groupFinancialActivity,
 } from "../financial-activity";
 
-export async function generateXlsx(result: AnalysisResult): Promise<Buffer> {
+export async function generateXlsx(result: AnalysisResult): Promise<ArrayBuffer> {
   const wb = new ExcelJS.Workbook();
   wb.creator = "SogeServi | SAF-T Analyzer";
   wb.company = "SogeServi";
@@ -25,7 +25,7 @@ export async function generateXlsx(result: AnalysisResult): Promise<Buffer> {
   addErrosSheet(wb, result);
 
   const buffer = await wb.xlsx.writeBuffer();
-  return Buffer.from(buffer);
+  return new Uint8Array(buffer).buffer as ArrayBuffer;
 }
 
 function headerStyle(ws: ExcelJS.Worksheet, rowNum: number): void {

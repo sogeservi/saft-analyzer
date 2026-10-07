@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { AnalysisResult } from "@/lib/types/analysis";
 import { useLocale } from "@/lib/i18n";
+import { downloadPdf } from "@/lib/export/pdf-client";
+import { downloadFile } from "@/lib/export/download-file";
 
 interface ExportMenuProps {
   result: AnalysisResult;
@@ -23,30 +25,19 @@ export function ExportMenu({ result }: ExportMenuProps) {
 
   const handleExport = async (format: "pdf" | "xlsx") => {
     setExporting(true);
-    const endpoint =
-      format === "pdf" ? "/api/export/pdf" : "/api/export/xlsx";
-
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(result),
-        cache: "no-store",
-      });
-
-      if (!response.ok)
-        throw new Error(`${t("Erro ao exportar")} ${format.toUpperCase()}`);
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download =
-        response.headers
-          .get("Content-Disposition")
-          ?.match(/filename="(.+)"/)?.[1] ?? `saft-export.${format}`;
-      a.click();
-      URL.revokeObjectURL(url);
+      if (format === "pdf") {
+        await downloadPdf(result);
+      } else {
+        const { generateXlsx } = await import("@/lib/export/xlsx-generator");
+        const buffer = await generateXlsx(result);
+        downloadFile(
+          new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          }),
+          "saft-analysis.xlsx",
+        );
+      }
       toast.success(`${format.toUpperCase()} ${t("exportado com sucesso")}`);
     } catch {
       toast.error(`${t("Erro ao exportar")} ${format.toUpperCase()}`);
