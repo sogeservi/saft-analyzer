@@ -1,6 +1,5 @@
 import type {
   Content,
-  CustomTableLayout,
   TDocumentDefinitions,
 } from "pdfmake/interfaces";
 import type { AnalysisResult } from "../types/analysis";
@@ -13,9 +12,8 @@ import { formatCurrency, formatNumber } from "../format";
 import { SEVERITY_LABELS } from "../types/errors";
 
 const BODY_WIDTH = 531;
-const TABLE_LAYOUT: CustomTableLayout = {
-  hLineWidth: (index, node) =>
-    index === 0 || index === node.table.body.length ? 0.6 : 0.25,
+const TABLE_LAYOUT = {
+  hLineWidth: (index: number) => index === 0 ? 0.6 : 0.25,
   vLineWidth: () => 0,
   hLineColor: () => "#DDE4EA",
   paddingLeft: () => 5,

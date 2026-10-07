@@ -108,6 +108,12 @@ declare module "pdfmake/interfaces" {
 
   interface TDocumentDefinitions {
     content: Content | Content[];
+    info?: {
+      title?: string;
+      author?: string;
+      subject?: string;
+      keywords?: string;
+    };
     pageSize?: PageSize;
     pageMargins?: Margins;
     defaultStyle?: Style;
