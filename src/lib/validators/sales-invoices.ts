@@ -176,13 +176,14 @@ function validateSingleInvoice(
     // INV_009: ATCUD series consistency
     const parts = inv.invoiceNo.split("/");
     const series = parts[0] ?? "";
-    const existingCode = seriesAtcud.get(series);
+    const seriesKey = `${inv.invoiceType}|${series}`;
+    const existingCode = seriesAtcud.get(seriesKey);
     if (existingCode && existingCode !== atcudCode) {
       errors.push(e("INV_009", "error",
-        `ATCUD inconsistente na série '${series}': esperado código '${existingCode}', encontrado '${atcudCode}'.`,
+        `ATCUD com código de validação diferente na série '${series}' (tipo '${inv.invoiceType}'): primeiro código encontrado '${existingCode}', encontrado '${atcudCode}'. Confirme o código registado na AT.`,
         `${path}.ATCUD`, inv.invoiceNo, false));
     }
-    seriesAtcud.set(series, atcudCode);
+    if (!existingCode) seriesAtcud.set(seriesKey, atcudCode);
 
     // INV_010: ATCUD number matches invoice number
     if (parts.length >= 2) {
