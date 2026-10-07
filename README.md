@@ -25,7 +25,7 @@ Os ficheiros e relatórios são processados sem gravação em disco. A análise 
 - São processadas até 10 análises em simultâneo por processo Node.js; as restantes aguardam numa fila com posição apresentada ao utilizador. Cada endereço IP pode ter uma análise ativa de cada vez.
 - Relatórios e ligações estão limitados a 5 pedidos por IP por minuto e 100 pedidos por minuto no total. Cada ligação pode conter até 10 MiB e cada IP pode manter até 10 ligações ativas. As ligações expiram após 24 horas.
 - O estado da fila, os limites e as ligações são locais ao processo. Esta configuração destina-se a uma única instancia Node.js; várias replicas não partilham esses limites nem as ligações.
-- Em produção, o endereço IP e obtido do cabeçalho `CF-Connecting-IP`. Use um proxy Cloudflare que substitua esse cabeçalho e restrinja o acesso direto à origem.
+- Por predefinição, o IP é obtido de `CF-Connecting-IP`; se faltar ou for inválido, usamos o primeiro endereço válido de `X-Forwarded-For` ou `X-Real-IP`. Sem esses cabeçalhos, usamos o IP disponibilizado pelo runtime. Configure `TRUST_PROXY_HEADERS=false` para ignorar todos os cabeçalhos de proxy. Use apenas proxies que substituam estes valores e restrinja o acesso direto à origem.
 
 Com a Cloudflare, cada pedido de bloco fica muito abaixo do limite documentado de 100 MB por pedido nos planos Free e Pro. O tamanho total do SAF-T pode assim exceder o limite por pedido, desde que cada bloco continue abaixo do limite configurado na zona. Consulte os [limites de carregamento da Cloudflare](https://developers.cloudflare.com/cache/concepts/default-cache-behavior/#upload-limits).
 

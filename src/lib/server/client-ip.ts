@@ -3,14 +3,33 @@ import { isIP } from "node:net";
 
 const processSecret = randomBytes(32);
 
+function getRequestIp(request: Request): string | null {
+  const ip = Reflect.get(request, "ip");
+  return typeof ip === "string" && isIP(ip) !== 0 ? ip : null;
+}
+
+function getTrustedProxyIp(request: Request): string | null {
+  const cloudflareIp = request.headers.get("cf-connecting-ip")?.trim();
+  if (cloudflareIp && isIP(cloudflareIp) !== 0) return cloudflareIp;
+
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  for (const candidate of forwardedFor?.split(",") ?? []) {
+    const ip = candidate.trim();
+    if (ip && isIP(ip) !== 0) return ip;
+  }
+
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp && isIP(realIp) !== 0) return realIp;
+
+  return null;
+}
+
 export function getClientIpKey(request: Request): string | null {
-  const forwardedIp = request.headers.get("cf-connecting-ip")?.trim();
-  const devForwardedIp =
-    process.env.NODE_ENV !== "production"
-      ? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "127.0.0.1"
-      : undefined;
-  const ip = forwardedIp || devForwardedIp;
-  if (!ip || isIP(ip) === 0) return null;
+  const proxyTrustDisabled = process.env.TRUST_PROXY_HEADERS?.toLowerCase() === "false";
+  const ip = proxyTrustDisabled
+    ? getRequestIp(request)
+    : getTrustedProxyIp(request) ?? getRequestIp(request);
+  if (!ip) return null;
 
   return createHmac("sha256", processSecret).update(ip).digest("hex");
 }
