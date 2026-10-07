@@ -8,7 +8,7 @@ interface SharePageProps {
 
 export default async function SharePage({ params }: SharePageProps) {
   const { uuid } = await params;
-  const entry = tempStore.get(uuid);
+  const entry = await tempStore.get(uuid);
 
   if (!entry) {
     notFound();

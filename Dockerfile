@@ -9,6 +9,10 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ARG BUILD_VERSION=dev
+ARG BUILD_DATE=unknown
+ENV NEXT_PUBLIC_APP_VERSION=$BUILD_VERSION
+ENV NEXT_PUBLIC_BUILD_DATE=$BUILD_DATE
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
@@ -19,6 +23,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+RUN mkdir -p /app/share-data && chown nextjs:nodejs /app/share-data
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -30,5 +35,6 @@ USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ENV SHARE_STORAGE_DIR=/app/share-data
 
 CMD ["node", "server.js"]

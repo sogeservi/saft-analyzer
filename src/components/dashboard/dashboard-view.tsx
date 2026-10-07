@@ -10,6 +10,9 @@ import { formatDuration } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Building2, CalendarDays, FileCheck2, FileWarning } from "lucide-react";
 
+const appVersion = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.1.0-dev";
+const buildDate = process.env.NEXT_PUBLIC_BUILD_DATE ?? "local build";
+
 interface DashboardViewProps {
   result: AnalysisResult;
   onSectionSelect: (section: string) => void;
@@ -31,7 +34,13 @@ export function DashboardView({
                 {result.saftType === "complete" ? <FileCheck2 className="size-3.5" /> : <FileWarning className="size-3.5" />}
                 SAF-T {result.saftType === "complete" ? "completo" : "parcial"}
               </Badge>
-              <span className="text-xs text-slate-300">Versão {result.saftVersion}</span>
+              <span className="text-xs text-slate-300">SAF-T {result.saftVersion}</span>
+              <span
+                className="text-xs text-slate-400"
+                title={`Atualizado em ${buildDate}`}
+              >
+                App {appVersion} · {buildDate}
+              </span>
             </div>
             <h2 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">{result.header.companyName}</h2>
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-300">

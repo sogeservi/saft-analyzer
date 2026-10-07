@@ -8,7 +8,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const result = (await request.json()) as AnalysisResult;
 
     const uuid = uuidv4();
-    const { createdAt, expiresAt } = tempStore.set(uuid, result);
+    const { createdAt, expiresAt } = await tempStore.set(uuid, result);
 
     return NextResponse.json({
       uuid,
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  const entry = tempStore.get(uuid);
+  const entry = await tempStore.get(uuid);
   if (!entry) {
     return NextResponse.json(
       { error: "Link expirado ou não encontrado." },
