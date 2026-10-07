@@ -1,13 +1,20 @@
 import ExcelJS from "exceljs";
 import type { AnalysisResult } from "../types/analysis";
 import { SEVERITY_LABELS } from "../types/errors";
+import { APP_BUILD_INFO } from "../build-info";
+import {
+  ACTIVITY_PERIOD_LABELS,
+  groupFinancialActivity,
+} from "../financial-activity";
 
 export async function generateXlsx(result: AnalysisResult): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
   wb.creator = "SAF-T Analyzer";
+  wb.company = result.header.companyName;
   wb.created = new Date();
 
   addResumoSheet(wb, result);
+  addActivitySheet(wb, result);
   addClientesSheet(wb, result);
   addFornecedoresSheet(wb, result);
   addProdutosSheet(wb, result);
@@ -30,6 +37,7 @@ function headerStyle(ws: ExcelJS.Worksheet, rowNum: number): void {
     fgColor: { argb: "FF1F2937" },
   };
   row.alignment = { horizontal: "center" };
+  ws.views = [{ state: "frozen", ySplit: rowNum }];
 }
 
 function addResumoSheet(wb: ExcelJS.Workbook, r: AnalysisResult): void {
@@ -41,19 +49,64 @@ function addResumoSheet(wb: ExcelJS.Workbook, r: AnalysisResult): void {
   headerStyle(ws, 1);
 
   ws.addRow({ field: "Empresa", value: r.header.companyName });
+  ws.addRow({ field: "Nome comercial", value: r.header.businessName ?? "" });
   ws.addRow({ field: "NIF", value: r.header.taxRegistrationNumber });
+  ws.addRow({ field: "ID da empresa", value: r.header.companyID });
+  ws.addRow({ field: "Morada", value: [r.header.companyAddress.addressDetail, r.header.companyAddress.city, r.header.companyAddress.postalCode, r.header.companyAddress.country].filter(Boolean).join(", ") });
+  ws.addRow({ field: "Software exportador", value: [r.header.productID, r.header.productVersion].filter(Boolean).join(" ") });
+  ws.addRow({ field: "NIF do produtor de software", value: r.header.productCompanyTaxID });
+  ws.addRow({ field: "Certificado de software", value: r.header.softwareCertificateNumber });
+  ws.addRow({ field: "Tipo SAF-T", value: r.saftType === "complete" ? "Completo" : "Parcial" });
   ws.addRow({ field: "Versão SAF-T", value: r.saftVersion });
   ws.addRow({ field: "Período", value: `${r.header.startDate} a ${r.header.endDate}` });
-  ws.addRow({ field: "Data de Análise", value: r.analyzedAt });
-  ws.addRow({ field: "Receita Total", value: r.financialSummary.totalRevenue.toFixed(2) });
-  ws.addRow({ field: "Total Crédito", value: r.financialSummary.totalCredit.toFixed(2) });
-  ws.addRow({ field: "Total Débito", value: r.financialSummary.totalDebit.toFixed(2) });
+  ws.addRow({ field: "Data de Análise", value: new Date(r.analyzedAt) }).getCell(2).numFmt = "yyyy-mm-dd hh:mm";
+  ws.addRow({ field: "Versão da aplicação", value: APP_BUILD_INFO.version });
+  ws.addRow({ field: "Data de build da aplicação", value: APP_BUILD_INFO.date });
+  ws.addRow({ field: "Receita Total", value: r.financialSummary.totalRevenue }).getCell(2).numFmt = '"€"#,##0.00';
+  ws.addRow({ field: "Total Crédito", value: r.financialSummary.totalCredit }).getCell(2).numFmt = '"€"#,##0.00';
+  ws.addRow({ field: "Total Débito", value: r.financialSummary.totalDebit }).getCell(2).numFmt = '"€"#,##0.00';
   ws.addRow({ field: "Score de Saúde", value: `${r.healthScore.overall}%` });
   ws.addRow({ field: "Total de Erros", value: r.errorSummary.total });
   ws.addRow({ field: "Erros Críticos", value: r.errorSummary.bySeverity.critical });
   ws.addRow({ field: "Erros", value: r.errorSummary.bySeverity.error });
   ws.addRow({ field: "Avisos", value: r.errorSummary.bySeverity.warning });
   ws.addRow({ field: "Informações", value: r.errorSummary.bySeverity.info });
+}
+
+function addActivitySheet(wb: ExcelJS.Workbook, result: AnalysisResult): void {
+  const { period, buckets } = groupFinancialActivity(result.financialSummary.dayStats);
+  const ws = wb.addWorksheet("Atividade");
+  ws.columns = [
+    { header: `Período (${ACTIVITY_PERIOD_LABELS[period]})`, key: "period", width: 26 },
+    { header: "Total bruto (EUR)", key: "grossTotal", width: 22 },
+    { header: "Documentos", key: "documentCount", width: 16 },
+  ];
+  headerStyle(ws, 1);
+
+  for (const bucket of buckets) {
+    const row = ws.addRow({
+      period: bucket.label,
+      grossTotal: bucket.grossTotal,
+      documentCount: bucket.documentCount,
+    });
+    row.getCell(2).numFmt = '"€"#,##0.00';
+    row.getCell(3).numFmt = "#,##0";
+  }
+  if (buckets.length > 0) {
+    ws.addConditionalFormatting({
+      ref: `B2:B${buckets.length + 1}`,
+      rules: [{
+        type: "colorScale",
+        priority: 1,
+        cfvo: [{ type: "min" }, { type: "max" }],
+        color: [{ argb: "FFE0F2FE" }, { argb: "FF0891B2" }],
+      }],
+    });
+  }
+  ws.autoFilter = {
+    from: { row: 1, column: 1 },
+    to: { row: ws.rowCount, column: ws.columnCount },
+  };
 }
 
 function addClientesSheet(wb: ExcelJS.Workbook, r: AnalysisResult): void {

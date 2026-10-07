@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowDownRight, ArrowUpRight, CircleDollarSign, CircleHelp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -9,89 +10,199 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { FinancialSummary } from "@/lib/types/analysis";
 import { formatCurrency, formatNumber } from "@/lib/format";
+import {
+  ACTIVITY_PERIOD_LABELS,
+  groupFinancialActivity,
+} from "@/lib/financial-activity";
 
 interface FinancialPanelProps {
   summary: FinancialSummary;
 }
 
-export function FinancialPanel({ summary }: FinancialPanelProps) {
-  const maxDailyTotal = summary.dayStats.reduce(
-    (maximum, day) => Math.max(maximum, day.grossTotal),
-    1,
-  );
+function MetricCard({
+  label,
+  value,
+  help,
+  icon: Icon,
+  tone,
+}: {
+  label: string;
+  value: string;
+  help: string;
+  icon: typeof CircleDollarSign;
+  tone: "cyan" | "emerald" | "rose";
+}) {
+  const tones = {
+    cyan: "border-cyan-500/15 from-cyan-500/[0.08] to-transparent text-cyan-700 dark:text-cyan-300",
+    emerald: "border-emerald-500/15 from-emerald-500/[0.08] to-transparent text-emerald-700 dark:text-emerald-300",
+    rose: "border-rose-500/15 from-rose-500/[0.08] to-transparent text-rose-700 dark:text-rose-300",
+  };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Resumo financeiro</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <p className="text-sm text-muted-foreground">Receita total</p>
-            <p className="text-xl font-bold">
-              {formatCurrency(summary.totalRevenue)}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Total crédito</p>
-            <p className="text-xl font-bold text-green-600">
-              {formatCurrency(summary.totalCredit)}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Total débito</p>
-            <p className="text-xl font-bold text-red-600">
-              {formatCurrency(summary.totalDebit)}
-            </p>
-          </div>
-        </div>
+    <div className={`rounded-xl border bg-gradient-to-br p-4 ${tones[tone]}`}>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <span className="text-xs font-medium text-muted-foreground">{label}</span>
+        <Icon className="size-4 opacity-80" aria-hidden="true" />
+      </div>
+      <p className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+        {value}
+      </p>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground underline decoration-dotted underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Como se calcula <CircleHelp className="size-3" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{help}</TooltipContent>
+      </Tooltip>
+    </div>
+  );
+}
 
-        {summary.dayStats.length > 1 && (
-          <div className="rounded-xl border bg-gradient-to-br from-muted/50 to-background p-4">
-            <div className="mb-3 flex items-baseline justify-between gap-3">
-              <h4 className="text-sm font-medium">Atividade diária</h4>
-              <span className="text-xs text-muted-foreground">Total bruto por data</span>
-            </div>
-            <svg
-              role="img"
-              aria-label={`Gráfico da atividade diária em ${summary.dayStats.length} datas`}
-              viewBox="0 0 600 120"
-              className="h-28 w-full"
-              preserveAspectRatio="none"
-            >
-              <defs>
-                <linearGradient id="daily-activity" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="currentColor" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="currentColor" stopOpacity="0.12" />
-                </linearGradient>
-              </defs>
-              <path d="M0 108 H600" stroke="currentColor" strokeOpacity="0.12" />
-              {summary.dayStats.map((day, index) => {
-                const count = summary.dayStats.length;
-                const slot = 600 / count;
-                const barWidth = Math.max(2, slot * 0.62);
-                const height = Math.max(2, (Math.max(0, day.grossTotal) / maxDailyTotal) * 96);
-                return (
-                  <rect
-                    key={day.date}
-                    x={index * slot + (slot - barWidth) / 2}
-                    y={108 - height}
-                    width={barWidth}
-                    height={height}
-                    rx="3"
-                    className="text-cyan-600 dark:text-cyan-400"
-                    fill="url(#daily-activity)"
-                  >
-                    <title>{`${day.date}: ${formatCurrency(day.grossTotal)}`}</title>
-                  </rect>
-                );
-              })}
-            </svg>
+export function FinancialPanel({ summary }: FinancialPanelProps) {
+  const { period, buckets } = groupFinancialActivity(summary.dayStats);
+  const periodLabel = ACTIVITY_PERIOD_LABELS[period];
+  const maxTotal = buckets.reduce(
+    (maximum, bucket) => Math.max(maximum, bucket.grossTotal),
+    1,
+  );
+  const slot = 800 / Math.max(buckets.length, 1);
+  const barWidth = Math.max(1, Math.min(26, slot * 0.66));
+  const tickInterval = Math.max(1, Math.ceil(buckets.length / 5));
+
+  return (
+    <Card className="overflow-hidden">
+      <CardHeader className="border-b bg-gradient-to-r from-cyan-500/[0.06] via-transparent to-transparent pb-5">
+        <CardTitle className="flex items-center gap-2">
+          <span className="grid size-9 place-items-center rounded-xl bg-cyan-500/10 text-cyan-700 dark:text-cyan-300">
+            <CircleDollarSign className="size-5" />
+          </span>
+          Resumo financeiro
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6 pt-5">
+        <TooltipProvider>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <MetricCard
+              label="Receita total"
+              value={formatCurrency(summary.totalRevenue)}
+              help="Total de crédito menos total de débito das faturas válidas."
+              icon={CircleDollarSign}
+              tone="cyan"
+            />
+            <MetricCard
+              label="Total crédito"
+              value={formatCurrency(summary.totalCredit)}
+              help="Soma dos valores a crédito declarados nos documentos."
+              icon={ArrowUpRight}
+              tone="emerald"
+            />
+            <MetricCard
+              label="Total débito"
+              value={formatCurrency(summary.totalDebit)}
+              help="Soma dos valores a débito declarados nos documentos."
+              icon={ArrowDownRight}
+              tone="rose"
+            />
           </div>
-        )}
+
+          {buckets.length > 1 && (
+            <section className="rounded-xl border bg-gradient-to-br from-muted/50 via-background to-cyan-500/[0.04] p-4">
+              <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+                <div>
+                  <h4 className="text-sm font-semibold">
+                    Atividade por {periodLabel}
+                  </h4>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Total bruto e número de documentos por {periodLabel}
+                  </p>
+                </div>
+                <span className="rounded-full border bg-background/70 px-2.5 py-1 text-xs text-muted-foreground">
+                  {formatNumber(buckets.length)} períodos
+                </span>
+              </div>
+              <div className="overflow-x-auto pb-1">
+                <svg
+                  role="group"
+                  aria-label={`Atividade por ${periodLabel}, total bruto e documentos em ${buckets.length} períodos`}
+                  viewBox="0 0 800 180"
+                  className="h-36 w-full overflow-visible text-muted-foreground"
+                  style={{ minWidth: `${Math.max(640, buckets.length * 16)}px` }}
+                  preserveAspectRatio="none"
+                >
+                  <defs>
+                    <linearGradient id="activity-bars" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stopColor="#0891b2" stopOpacity="0.9" />
+                      <stop offset="100%" stopColor="#0891b2" stopOpacity="0.18" />
+                    </linearGradient>
+                  </defs>
+                  {[32, 68, 104, 140].map((y) => (
+                    <path
+                      key={y}
+                      d={`M0 ${y} H800`}
+                      stroke="currentColor"
+                      strokeOpacity="0.12"
+                    />
+                  ))}
+                  {buckets.map((bucket, index) => {
+                    const height = Math.max(2, (Math.max(0, bucket.grossTotal) / maxTotal) * 104);
+                    const showLabel =
+                      index === 0 ||
+                      index === buckets.length - 1 ||
+                      index % tickInterval === 0;
+                    return (
+                      <g key={bucket.key}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <rect
+                              x={index * slot + (slot - barWidth) / 2}
+                              y={140 - height}
+                              width={barWidth}
+                              height={height}
+                              rx="3"
+                              fill="url(#activity-bars)"
+                              tabIndex={0}
+                              role="img"
+                              aria-label={`${bucket.label}: ${formatCurrency(bucket.grossTotal)}, ${formatNumber(bucket.documentCount)} documentos`}
+                              className="cursor-help outline-none focus-visible:stroke-cyan-500 focus-visible:stroke-2"
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent className="space-y-1">
+                            <p className="font-semibold">{bucket.label}</p>
+                            <p>Total bruto: {formatCurrency(bucket.grossTotal)}</p>
+                            <p>{formatNumber(bucket.documentCount)} documentos</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        {showLabel && (
+                          <text
+                            x={index * slot + slot / 2}
+                            y="164"
+                            textAnchor="middle"
+                            className="fill-muted-foreground"
+                            fontSize="10"
+                          >
+                            {bucket.label}
+                          </text>
+                        )}
+                      </g>
+                    );
+                  })}
+                </svg>
+              </div>
+            </section>
+          )}
+        </TooltipProvider>
 
         {summary.vatBreakdown.length > 0 && (
           <div>

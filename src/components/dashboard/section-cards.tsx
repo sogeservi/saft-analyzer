@@ -118,7 +118,15 @@ const SECTIONS: SectionDef[] = [
 export function SectionCards({ result, onSelect }: SectionCardsProps) {
   return (
     <div>
-      <h3 className="mb-4 text-lg font-semibold">Secções</h3>
+      <div className="mb-4 flex items-end justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold">Explorar o ficheiro</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Abra uma secção para consultar os registos e respetivas validações.</p>
+        </div>
+        <span className="hidden rounded-full border bg-muted/50 px-3 py-1 text-xs text-muted-foreground sm:inline-flex">
+          {SECTIONS.length - 1} secções
+        </span>
+      </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {SECTIONS.map((sec) => {
           const count = sec.getCount(result);
@@ -127,24 +135,31 @@ export function SectionCards({ result, onSelect }: SectionCardsProps) {
           return (
             <Card
               key={sec.id}
-              className="cursor-pointer transition-colors hover:bg-muted/50"
-              onClick={() => onSelect(sec.id)}
+              className="group overflow-hidden bg-gradient-to-br from-card via-card to-muted/50 transition duration-200 hover:-translate-y-0.5 hover:border-cyan-500/30 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
-              <CardContent className="flex items-center gap-3 py-4">
-                <Icon className="size-5 shrink-0 text-muted-foreground" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">{sec.label}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {sec.id === "errors"
-                      ? `${formatNumber(count)} erros encontrados`
-                      : formatNumber(count)}
-                  </p>
-                </div>
-                {errors > 0 && (
-                  <Badge variant="destructive" className="shrink-0">
-                    {errors}
-                  </Badge>
-                )}
+              <CardContent className="p-0">
+                <button
+                  type="button"
+                  onClick={() => onSelect(sec.id)}
+                  className="flex min-h-24 w-full items-center gap-3 p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                >
+                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-cyan-500/10 text-cyan-700 transition group-hover:bg-cyan-500/15 dark:text-cyan-300">
+                    <Icon className="size-5" aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{sec.label}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {sec.id === "errors"
+                        ? `${formatNumber(count)} erros encontrados`
+                        : formatNumber(count)}
+                    </p>
+                  </div>
+                  {errors > 0 && (
+                    <Badge variant="destructive" className="shrink-0">
+                      {errors}
+                    </Badge>
+                  )}
+                </button>
               </CardContent>
             </Card>
           );

@@ -90,12 +90,20 @@ declare module "pdfmake/interfaces" {
     margin?: Margins;
   }
 
+  interface ContentSvg {
+    svg: string;
+    width?: number;
+    height?: number;
+    margin?: Margins;
+  }
+
   type Content =
     | string
     | ContentText
     | ContentColumns
     | ContentTable
     | ContentStack
+    | ContentSvg
     | Content[];
 
   interface TDocumentDefinitions {

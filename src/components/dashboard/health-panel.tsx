@@ -8,6 +8,7 @@ import {
   AlertCircle,
   Info,
   XCircle,
+  CircleHelp,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,12 @@ import type {
 import type { Severity } from "@/lib/types/errors";
 import { formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface HealthPanelProps {
   healthScore: HealthScore;
@@ -67,22 +74,51 @@ export function HealthPanel({
       : healthScore.overall >= 60
         ? "text-amber-600"
         : "text-red-600";
+  const displayedErrors = errorSummary.topErrors.slice(0, 3);
+  const summarizedErrorCount = displayedErrors.reduce(
+    (sum, error) => sum + error.count,
+    0,
+  );
+  const reportableErrorCount =
+    errorSummary.bySeverity.critical +
+    errorSummary.bySeverity.error +
+    errorSummary.bySeverity.warning;
+  const allErrorsShown = summarizedErrorCount === reportableErrorCount;
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Saúde da Validação</CardTitle>
+      <CardHeader className="border-b bg-gradient-to-r from-indigo-500/[0.06] via-transparent to-transparent pb-5">
+        <CardTitle className="flex items-center gap-2">
+          <span className="grid size-9 place-items-center rounded-xl bg-indigo-500/10 text-indigo-700 dark:text-indigo-300">
+            <ShieldCheck className="size-5" />
+          </span>
+          Saúde da Validação
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center gap-4">
-          <HealthIcon className={cn("size-12", healthColor)} />
+          <div className="grid size-14 place-items-center rounded-2xl bg-muted/70">
+            <HealthIcon className={cn("size-9", healthColor)} />
+          </div>
           <div>
             <p className={cn("text-3xl font-bold", healthColor)}>
               {formatPercentage(healthScore.overall)}
             </p>
-            <p className="text-sm text-muted-foreground">
-              Pontuação de Saúde
-            </p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 text-sm text-muted-foreground underline decoration-dotted underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    Pontuação de Saúde <CircleHelp className="size-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  A pontuação resume as validações aplicadas ao ficheiro SAF-T.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
 
@@ -107,9 +143,11 @@ export function HealthPanel({
 
         {errorSummary.topErrors.length > 0 && (
           <div>
-            <h4 className="mb-2 text-sm font-medium">Erros mais comuns</h4>
+            <h4 className="mb-2 text-sm font-medium">
+              {allErrorsShown ? "Erros encontrados" : "Erros mais comuns"}
+            </h4>
             <div className="space-y-1">
-              {errorSummary.topErrors.slice(0, 3).map((te) => (
+              {displayedErrors.map((te) => (
                 <div
                   key={te.code}
                   className="flex items-center justify-between text-sm"

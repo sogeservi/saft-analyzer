@@ -33,9 +33,23 @@ export function formatPercentage(n: number): string {
 }
 
 export function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`;
-  if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-  const mins = Math.floor(ms / 60000);
-  const secs = Math.round((ms % 60000) / 1000);
-  return `${mins}m ${secs}s`;
+  if (ms < 1000) {
+    const value = Math.round(ms);
+    if (value >= 1000) return "1 segundo";
+    return `${value} ${value === 1 ? "milissegundo" : "milissegundos"}`;
+  }
+  const totalSeconds = Math.round(ms / 1000);
+  if (totalSeconds < 60) {
+    const seconds = ms / 1000;
+    const value = seconds.toLocaleString(PT_LOCALE, {
+      maximumFractionDigits: 1,
+    });
+    return `${value} ${totalSeconds === 1 ? "segundo" : "segundos"}`;
+  }
+
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  const minutesLabel = mins === 1 ? "minuto" : "minutos";
+  if (secs === 0) return `${mins} ${minutesLabel}`;
+  return `${mins} ${minutesLabel} e ${secs} ${secs === 1 ? "segundo" : "segundos"}`;
 }
