@@ -142,3 +142,43 @@ export function validateHeader(saftData: SaftFile): ValidationError[] {
 
   return errors;
 }
+
+export function validatePeriodEnd(
+  saftData: SaftFile,
+  now = new Date(),
+): ValidationError[] {
+  const endDate = saftData.header.endDate;
+  if (!ISO_DATE_RE.test(endDate)) return [];
+
+  const parsedEndDate = new Date(`${endDate}T00:00:00.000Z`);
+  if (
+    Number.isNaN(parsedEndDate.getTime()) ||
+    parsedEndDate.toISOString().slice(0, 10) !== endDate
+  ) {
+    return [];
+  }
+
+  const dateParts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Lisbon",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    dateParts.find((datePart) => datePart.type === type)?.value ?? "";
+  const today = `${part("year")}-${part("month")}-${part("day")}`;
+  if (endDate < today) return [];
+
+  return [
+    {
+      code: "HDR_014",
+      severity: "warning",
+      message: "O período deste SAF-T termina hoje ou no futuro.",
+      explanation:
+        "Podem ser emitidas novas faturas durante este período após a criação do ficheiro, e essas faturas podem não estar incluídas neste SAF-T.",
+      path: "Header.EndDate",
+      section: "Header",
+      autoFixable: false,
+    },
+  ];
+}

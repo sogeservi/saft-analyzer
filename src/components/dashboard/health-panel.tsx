@@ -20,6 +20,7 @@ import type {
 import type { Severity } from "@/lib/types/errors";
 import { formatPercentage } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 import {
   Tooltip,
   TooltipContent,
@@ -61,6 +62,7 @@ export function HealthPanel({
   hashChainResults,
   xsdValid,
 }: HealthPanelProps) {
+  const { t, languageTag } = useLocale();
   const allHashValid = hashChainResults.every((h) => h.valid);
   const HealthIcon =
     healthScore.overall >= 90
@@ -92,7 +94,7 @@ export function HealthPanel({
           <span className="grid size-9 place-items-center rounded-xl bg-indigo-500/10 text-indigo-700 dark:text-indigo-300">
             <ShieldCheck className="size-5" />
           </span>
-          Saúde da Validação
+          {t("Saúde da Validação")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -102,7 +104,7 @@ export function HealthPanel({
           </div>
           <div>
             <p className={cn("text-3xl font-bold", healthColor)}>
-              {formatPercentage(healthScore.overall)}
+              {formatPercentage(healthScore.overall, languageTag)}
             </p>
             <TooltipProvider>
               <Tooltip>
@@ -111,12 +113,10 @@ export function HealthPanel({
                     type="button"
                     className="inline-flex items-center gap-1 text-sm text-muted-foreground underline decoration-dotted underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    Pontuação de Saúde <CircleHelp className="size-3.5" />
+                    {t("Pontuação de Saúde")}  <CircleHelp className="size-3.5" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  A pontuação resume as validações aplicadas ao ficheiro SAF-T.
-                </TooltipContent>
+                <TooltipContent>{t("A pontuação resume as validações aplicadas ao ficheiro SAF-T.")}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -131,20 +131,20 @@ export function HealthPanel({
               return (
                 <Badge key={sev} className={cn("gap-1", SEVERITY_COLORS[sev])}>
                   <Icon className="size-3" />
-                  {SEVERITY_LABELS[sev]}: {count}
+                  {t(SEVERITY_LABELS[sev])}: {count}
                 </Badge>
               );
             },
           )}
           {errorSummary.bySeverity.critical + errorSummary.bySeverity.error + errorSummary.bySeverity.warning === 0 && (
-            <Badge className="bg-green-600 text-white">Sem erros</Badge>
+            <Badge className="bg-green-600 text-white">{t("Sem erros")}</Badge>
           )}
         </div>
 
         {errorSummary.topErrors.length > 0 && (
           <div>
             <h4 className="mb-2 text-sm font-medium">
-              {allErrorsShown ? "Erros encontrados" : "Erros mais comuns"}
+              {allErrorsShown ? t("Erros encontrados") : t("Erros mais comuns")}
             </h4>
             <div className="space-y-1">
               {displayedErrors.map((te) => (
@@ -154,7 +154,7 @@ export function HealthPanel({
                 >
                   <span className="truncate text-muted-foreground">
                     <code className="mr-2 text-xs">{te.code}</code>
-                    {te.message}
+                    {t(te.message)}
                   </span>
                   <Badge variant="secondary" className="ml-2 shrink-0">
                     {te.count}
@@ -167,25 +167,25 @@ export function HealthPanel({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="rounded-lg border px-3 py-2">
-            <p className="text-xs text-muted-foreground">Cadeia de Hash</p>
+            <p className="text-xs text-muted-foreground">{t("Cadeia de Hash")}</p>
             <p
               className={cn(
                 "text-sm font-medium",
                 allHashValid ? "text-green-600" : "text-red-600",
               )}
             >
-              {allHashValid ? "Válida" : "Quebrada"}
+              {allHashValid ? t("Válida") : t("Quebrada")}
             </p>
           </div>
           <div className="rounded-lg border px-3 py-2">
-            <p className="text-xs text-muted-foreground">Validação XSD</p>
+            <p className="text-xs text-muted-foreground">{t("Validação XSD")}</p>
             <p
               className={cn(
                 "text-sm font-medium",
                 xsdValid ? "text-green-600" : "text-red-600",
               )}
             >
-              {xsdValid ? "Válido" : "Inválido"}
+              {xsdValid ? t("Válido") : t("Inválido")}
             </p>
           </div>
         </div>

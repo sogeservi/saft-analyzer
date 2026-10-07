@@ -117,10 +117,3 @@ export interface AnalysisResult {
   xsdValid: boolean;
   xsdErrors: ValidationError[];
 }
-
-export interface SharedAnalysis {
-  uuid: string;
-  createdAt: number;
-  expiresAt: number;
-  result: AnalysisResult;
-}

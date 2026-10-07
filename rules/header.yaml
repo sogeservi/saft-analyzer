@@ -89,3 +89,10 @@ rules:
     severity: warning
     section: HDR
     enabled: true
+
+  - id: HDR_014
+    name: Período SAF-T atual ou futuro
+    description: EndDate é hoje ou uma data futura e o ficheiro pode não incluir faturas emitidas posteriormente
+    severity: warning
+    section: HDR
+    enabled: true

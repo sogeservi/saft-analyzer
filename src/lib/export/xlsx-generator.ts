@@ -9,8 +9,8 @@ import {
 
 export async function generateXlsx(result: AnalysisResult): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
-  wb.creator = "SAF-T Analyzer";
-  wb.company = result.header.companyName;
+  wb.creator = "SogeServi | SAF-T Analyzer";
+  wb.company = "SogeServi";
   wb.created = new Date();
 
   addResumoSheet(wb, result);
@@ -71,6 +71,13 @@ function addResumoSheet(wb: ExcelJS.Workbook, r: AnalysisResult): void {
   ws.addRow({ field: "Erros", value: r.errorSummary.bySeverity.error });
   ws.addRow({ field: "Avisos", value: r.errorSummary.bySeverity.warning });
   ws.addRow({ field: "Informações", value: r.errorSummary.bySeverity.info });
+  const attribution = ws.addRow({ field: "Made by", value: "SogeServi" });
+  attribution.getCell(2).value = {
+    text: "SogeServi",
+    hyperlink: "https://sogeservi.pt",
+    tooltip: "SogeServi",
+  };
+  attribution.getCell(2).font = { color: { argb: "FF0563C1" }, underline: true };
 }
 
 function addActivitySheet(wb: ExcelJS.Workbook, result: AnalysisResult): void {

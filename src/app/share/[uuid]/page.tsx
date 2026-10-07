@@ -1,20 +1,33 @@
 import { notFound } from "next/navigation";
-import { tempStore } from "@/lib/store/temp-store";
+import type { Metadata } from "next";
 import { SharedResultView } from "./shared-result-view";
+import { getShare } from "@/lib/server/share-store";
+import type { AnalysisResult } from "@/lib/types/analysis";
 
-interface SharePageProps {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const runtime = "nodejs";
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
+export default async function SharedPage({
+  params,
+}: {
   params: Promise<{ uuid: string }>;
-}
-
-export default async function SharePage({ params }: SharePageProps) {
+}) {
   const { uuid } = await params;
-  const entry = await tempStore.get(uuid);
+  if (!/^[0-9a-f-]{36}$/i.test(uuid)) notFound();
 
-  if (!entry) {
+  const share = getShare(uuid);
+  if (!share) notFound();
+
+  let result: AnalysisResult;
+  try {
+    result = JSON.parse(share.payload.toString("utf8")) as AnalysisResult;
+  } catch {
     notFound();
   }
 
-  return (
-    <SharedResultView result={entry.result} expiresAt={entry.expiresAt} />
-  );
+  return <SharedResultView result={result} expiresAt={share.expiresAt} />;
 }

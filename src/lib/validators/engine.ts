@@ -13,7 +13,7 @@ import type {
   AnalysisProgress,
 } from "../types/analysis";
 import { v4 as uuidv4 } from "uuid";
-import { validateHeader } from "./header";
+import { validateHeader, validatePeriodEnd } from "./header";
 import { validateCustomers } from "./customers";
 import { validateSuppliers } from "./suppliers";
 import { validateProducts } from "./products";
@@ -38,6 +38,7 @@ export function runValidation(
   const startTime = Date.now();
   const errors: ValidationError[] = [];
   const hashChainResults: HashChainResult[] = [];
+  errors.push(...validatePeriodEnd(saftData));
   const saftType =
     saftData.masterFiles.products.length > 0 &&
     saftData.masterFiles.taxTable.length > 0

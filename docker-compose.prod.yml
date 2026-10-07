@@ -1,40 +1,6 @@
 services:
   saft-analyzer:
     image: 'ghcr.io/sogeservi/saft-analyzer:latest'
-    restart: always
-    volumes:
-      - './rules:/app/rules:ro'
-      - 'saft-shares:/app/share-data'
-    environment:
-      - SHARE_TTL_HOURS=24
-  tailscale:
-    image: 'tailscale/tailscale:latest'
-    environment:
-      - 'TS_AUTHKEY=${TS_AUTH_KEY}'
-      - 'TS_EXTRA_ARGS=--advertise-tags=tag:container,tag:app --login-server=${TS_LOGIN_SERVER} --advertise-routes=100.64.0.25/32'
-      - TS_STATE_DIR=/var/lib/tailscale
-      - TS_USERSPACE=false
-      - 'TS_HOSTNAME=${TS_HOSTNAME}'
-      - TS_AUTH_ONCE=true
-    volumes:
-      - './tailscale:/var/lib/tailscale'
-    devices:
-      - '/dev/net/tun:/dev/net/tun'
-    cap_add:
-      - net_admin
-    restart: always
-  caddy:
-    image: 'caddy:latest'
-    restart: always
-    volumes:
-      - './Caddyfile:/etc/caddy/Caddyfile:ro'
-      - './caddy-data:/data'
-      - './caddy-config:/config'
-      - './cert.crt:/etc/caddy/cert.crt'
-      - './cert.key:/etc/caddy/cert.key'
-    network_mode: 'service:tailscale'
-    depends_on:
-      saft-analyzer:
-        condition: service_started
-volumes:
-  saft-shares:
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped

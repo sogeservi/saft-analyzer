@@ -18,6 +18,7 @@ import type { AnalysisResult } from "@/lib/types/analysis";
 import type { ValidationError, Severity } from "@/lib/types/errors";
 import { SEVERITY_LABELS } from "@/lib/types/errors";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 interface ErrorsViewProps {
   result: AnalysisResult;
@@ -34,6 +35,7 @@ const SEVERITY_COLORS: Record<Severity, string> = {
 const ERRORS_PER_PAGE = 50;
 
 export function ErrorsView({ result, onBack }: ErrorsViewProps) {
+  const { t } = useLocale();
   const [search, setSearch] = useState("");
   const [severityFilter, setSeverityFilter] = useState<string>("warning+");
   const [sectionFilter, setSectionFilter] = useState<string>("all");
@@ -103,7 +105,7 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
         }),
       });
 
-      if (!response.ok) throw new Error("Erro ao gerar correções");
+      if (!response.ok) throw new Error(t("Erro ao gerar correções"));
 
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -115,9 +117,9 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
           ?.match(/filename="(.+)"/)?.[1] ?? "correcoes.json";
       a.click();
       URL.revokeObjectURL(url);
-      toast.success("Documento de correções gerado");
+      toast.success(t("Documento de correções gerado"));
     } catch {
-      toast.error("Erro ao gerar documento de correções");
+      toast.error(t("Erro ao gerar documento de correções"));
     } finally {
       setGenerating(false);
     }
@@ -128,11 +130,11 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={onBack}>
           <ArrowLeft className="size-4" />
-          Voltar
+          {t("Voltar")}
         </Button>
-        <h2 className="text-xl font-semibold">Erros e correções</h2>
+        <h2 className="text-xl font-semibold">{t("Erros e correções")}</h2>
         <Badge variant="secondary">
-          {result.errors.filter((e) => e.severity !== "info").length} erros
+          {result.errors.filter((e) => e.severity !== "info").length} {t("erros encontrados")}
         </Badge>
       </div>
 
@@ -140,7 +142,7 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
         <div className="relative w-64">
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
-            placeholder="Pesquisar erros…"
+            placeholder={t("Pesquisar erros…")}
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(0); }}
             className="pl-9"
@@ -148,23 +150,23 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
         </div>
         <Select value={severityFilter} onValueChange={(v) => { setSeverityFilter(v); setPage(0); }}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Severidade" />
+            <SelectValue placeholder={t("Severidade")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="warning+">Aviso e superior</SelectItem>
-            <SelectItem value="all">Todas (inclui Info)</SelectItem>
-            <SelectItem value="critical">Crítico</SelectItem>
-            <SelectItem value="error">Erro</SelectItem>
-            <SelectItem value="warning">Aviso</SelectItem>
-            <SelectItem value="info">Informação</SelectItem>
+            <SelectItem value="warning+">{t("Aviso e superior")} </SelectItem>
+            <SelectItem value="all">{t("Todas (inclui Info)")} </SelectItem>
+            <SelectItem value="critical">{t("Crítico")} </SelectItem>
+            <SelectItem value="error">{t("Erro")} </SelectItem>
+            <SelectItem value="warning">{t("Aviso")} </SelectItem>
+            <SelectItem value="info">{t("Informação")} </SelectItem>
           </SelectContent>
         </Select>
         <Select value={sectionFilter} onValueChange={(v) => { setSectionFilter(v); setPage(0); }}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Secção" />
+            <SelectValue placeholder={t("Secção")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas as secções</SelectItem>
+            <SelectItem value="all">{t("Todas as secções")} </SelectItem>
             {sections.map((s) => (
               <SelectItem key={s} value={s}>
                 {s}
@@ -176,7 +178,7 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
         {fixableErrors.length > 0 && (
           <>
             <Button variant="outline" size="sm" onClick={selectAllFixable}>
-              Selecionar todas ({fixableErrors.length})
+              {t("Selecionar todas")} ({fixableErrors.length})
             </Button>
             <Button
               size="sm"
@@ -184,7 +186,7 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
               onClick={handleGenerateFixes}
             >
               <Download className="size-4" />
-              Gerar correções ({selectedFixes.size})
+              {t("Gerar correções")} ({selectedFixes.size})
             </Button>
           </>
         )}
@@ -193,14 +195,14 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
       {filtered.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            Nenhum erro encontrado com os filtros selecionados.
+            {t("Nenhum erro encontrado com os filtros selecionados.")}
           </CardContent>
         </Card>
       ) : (
         <>
           <p className="text-sm text-muted-foreground">
-            {filtered.length} resultado{filtered.length !== 1 ? "s" : ""}
-            {filtered.length > ERRORS_PER_PAGE && ` — página ${page + 1} de ${Math.ceil(filtered.length / ERRORS_PER_PAGE)}`}
+            {filtered.length} {t("resultados")}
+            {filtered.length > ERRORS_PER_PAGE && ` — ${t("página")} ${page + 1} ${t("de")} ${Math.ceil(filtered.length / ERRORS_PER_PAGE)}`}
           </p>
           <div className="space-y-2">
             {filtered
@@ -221,14 +223,14 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
                             SEVERITY_COLORS[err.severity],
                           )}
                         >
-                          {SEVERITY_LABELS[err.severity]}
+                          {t(SEVERITY_LABELS[err.severity])}
                         </Badge>
                         {err.autoFixable && (
                           <Button
                             variant={isSelected ? "default" : "outline"}
                             size="icon-xs"
                             onClick={() => toggleFix(err)}
-                            title="Selecionar para correção"
+                            title={t("Selecionar para correção")}
                           >
                             <Wrench className="size-3" />
                           </Button>
@@ -241,9 +243,9 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
                             {err.section}
                           </span>
                         </div>
-                        <p className="text-sm">{err.message}</p>
+                        <p className="text-sm">{t(err.message)}</p>
                         <p className="text-xs text-muted-foreground">
-                          {err.explanation}
+                          {t(err.explanation)}
                         </p>
                         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                           <span>
@@ -274,7 +276,7 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
           {Math.ceil(filtered.length / ERRORS_PER_PAGE) > 1 && (
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Página {page + 1} de {Math.ceil(filtered.length / ERRORS_PER_PAGE)}
+                {t("Página")} {page + 1} {t("de")} {Math.ceil(filtered.length / ERRORS_PER_PAGE)}
               </p>
               <div className="flex gap-2">
                 <Button
@@ -283,7 +285,7 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
                 >
-                  Anterior
+                  {t("Anterior")}
                 </Button>
                 <Button
                   variant="outline"
@@ -291,7 +293,7 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
                   onClick={() => setPage((p) => Math.min(Math.ceil(filtered.length / ERRORS_PER_PAGE) - 1, p + 1))}
                   disabled={page >= Math.ceil(filtered.length / ERRORS_PER_PAGE) - 1}
                 >
-                  Seguinte
+                  {t("Seguinte")}
                 </Button>
               </div>
             </div>

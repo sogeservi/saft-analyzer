@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { FinancialSummary } from "@/lib/types/analysis";
 import { formatCurrency, formatNumber } from "@/lib/format";
+import { useLocale } from "@/lib/i18n";
 import {
   ACTIVITY_PERIOD_LABELS,
   groupFinancialActivity,
@@ -40,6 +41,7 @@ function MetricCard({
   icon: typeof CircleDollarSign;
   tone: "cyan" | "emerald" | "rose";
 }) {
+  const { t } = useLocale();
   const tones = {
     cyan: "border-cyan-500/15 from-cyan-500/[0.08] to-transparent text-cyan-700 dark:text-cyan-300",
     emerald: "border-emerald-500/15 from-emerald-500/[0.08] to-transparent text-emerald-700 dark:text-emerald-300",
@@ -71,8 +73,9 @@ function MetricCard({
 }
 
 export function FinancialPanel({ summary }: FinancialPanelProps) {
-  const { period, buckets } = groupFinancialActivity(summary.dayStats);
-  const periodLabel = ACTIVITY_PERIOD_LABELS[period];
+  const { t, languageTag } = useLocale();
+  const { period, buckets } = groupFinancialActivity(summary.dayStats, languageTag);
+  const periodLabel = t(ACTIVITY_PERIOD_LABELS[period]);
   const maxTotal = buckets.reduce(
     (maximum, bucket) => Math.max(maximum, bucket.grossTotal),
     1,
@@ -88,30 +91,30 @@ export function FinancialPanel({ summary }: FinancialPanelProps) {
           <span className="grid size-9 place-items-center rounded-xl bg-cyan-500/10 text-cyan-700 dark:text-cyan-300">
             <CircleDollarSign className="size-5" />
           </span>
-          Resumo financeiro
+          {t("Resumo financeiro")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6 pt-5">
         <TooltipProvider>
           <div className="grid gap-3 sm:grid-cols-3">
             <MetricCard
-              label="Receita total"
-              value={formatCurrency(summary.totalRevenue)}
-              help="Total de crédito menos total de débito das faturas válidas."
+              label={t("Receita total")}
+              value={formatCurrency(summary.totalRevenue, languageTag)}
+              help={t("Total de crédito menos total de débito das faturas válidas.")}
               icon={CircleDollarSign}
               tone="cyan"
             />
             <MetricCard
-              label="Total crédito"
-              value={formatCurrency(summary.totalCredit)}
-              help="Soma dos valores a crédito declarados nos documentos."
+              label={t("Total crédito")}
+              value={formatCurrency(summary.totalCredit, languageTag)}
+              help={t("Soma dos valores a crédito declarados nos documentos.")}
               icon={ArrowUpRight}
               tone="emerald"
             />
             <MetricCard
-              label="Total débito"
-              value={formatCurrency(summary.totalDebit)}
-              help="Soma dos valores a débito declarados nos documentos."
+              label={t("Total débito")}
+              value={formatCurrency(summary.totalDebit, languageTag)}
+              help={t("Soma dos valores a débito declarados nos documentos.")}
               icon={ArrowDownRight}
               tone="rose"
             />
@@ -122,20 +125,20 @@ export function FinancialPanel({ summary }: FinancialPanelProps) {
               <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
                 <div>
                   <h4 className="text-sm font-semibold">
-                    Atividade por {periodLabel}
+                    {t("Atividade por")} {periodLabel}
                   </h4>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Total bruto e número de documentos por {periodLabel}
+                    {t("Total bruto e número de documentos por")} {periodLabel}
                   </p>
                 </div>
                 <span className="rounded-full border bg-background/70 px-2.5 py-1 text-xs text-muted-foreground">
-                  {formatNumber(buckets.length)} períodos
+                  {formatNumber(buckets.length, languageTag)} períodos
                 </span>
               </div>
               <div className="overflow-x-auto pb-1">
                 <svg
                   role="group"
-                  aria-label={`Atividade por ${periodLabel}, total bruto e documentos em ${buckets.length} períodos`}
+                  aria-label={`${t("Atividade por")} ${periodLabel}, ${t("Total bruto")} e ${t("documentos")} ${t("em")} ${formatNumber(buckets.length, languageTag)} ${t("períodos")}`}
                   viewBox="0 0 800 180"
                   className="h-36 w-full overflow-visible text-muted-foreground"
                   style={{ minWidth: `${Math.max(640, buckets.length * 16)}px` }}
@@ -174,14 +177,14 @@ export function FinancialPanel({ summary }: FinancialPanelProps) {
                               pointerEvents="all"
                               tabIndex={0}
                               role="img"
-                              aria-label={`${bucket.label}: ${formatCurrency(bucket.grossTotal)}, ${formatNumber(bucket.documentCount)} documentos`}
+                              aria-label={`${bucket.label}: ${formatCurrency(bucket.grossTotal, languageTag)}, ${formatNumber(bucket.documentCount, languageTag)} ${t("documentos")}`}
                               className="cursor-help outline-none focus-visible:stroke-cyan-500 focus-visible:stroke-2"
                             />
                           </TooltipTrigger>
                           <TooltipContent className="space-y-1">
                             <p className="font-semibold">{bucket.label}</p>
-                            <p>Total bruto: {formatCurrency(bucket.grossTotal)}</p>
-                            <p>{formatNumber(bucket.documentCount)} documentos</p>
+                            <p>{t("Total bruto")}: {formatCurrency(bucket.grossTotal, languageTag)}</p>
+                            <p>{formatNumber(bucket.documentCount, languageTag)} {t("documentos")}</p>
                           </TooltipContent>
                         </Tooltip>
                         <rect
@@ -216,15 +219,15 @@ export function FinancialPanel({ summary }: FinancialPanelProps) {
 
         {summary.vatBreakdown.length > 0 && (
           <div>
-            <h4 className="mb-2 text-sm font-medium">IVA por taxa</h4>
+            <h4 className="mb-2 text-sm font-medium">{t("IVA por taxa")}</h4>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Taxa</TableHead>
-                  <TableHead>Região</TableHead>
-                  <TableHead className="text-right">Base</TableHead>
-                  <TableHead className="text-right">IVA</TableHead>
-                  <TableHead className="text-right">Docs</TableHead>
+                  <TableHead>{t("Taxa")}</TableHead>
+                  <TableHead>{t("Região")}</TableHead>
+                  <TableHead className="text-right">{t("Base")}</TableHead>
+                  <TableHead className="text-right">{t("IVA")}</TableHead>
+                  <TableHead className="text-right">{t("Docs")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -233,13 +236,13 @@ export function FinancialPanel({ summary }: FinancialPanelProps) {
                     <TableCell>{vat.taxPercentage}%</TableCell>
                     <TableCell>{vat.taxCountryRegion}</TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(vat.baseAmount)}
+                      {formatCurrency(vat.baseAmount, languageTag)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(vat.taxAmount)}
+                      {formatCurrency(vat.taxAmount, languageTag)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatNumber(vat.documentCount)}
+                      {formatNumber(vat.documentCount, languageTag)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -250,13 +253,13 @@ export function FinancialPanel({ summary }: FinancialPanelProps) {
 
         {summary.documentTypeCounts.length > 0 && (
           <div>
-            <h4 className="mb-2 text-sm font-medium">Documentos por tipo</h4>
+            <h4 className="mb-2 text-sm font-medium">{t("Documentos por tipo")}</h4>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead className="text-right">Quantidade</TableHead>
-                  <TableHead className="text-right">Total bruto</TableHead>
+                  <TableHead>{t("Tipo")}</TableHead>
+                  <TableHead className="text-right">{t("Quantidade")}</TableHead>
+                  <TableHead className="text-right">{t("Total bruto")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -264,10 +267,10 @@ export function FinancialPanel({ summary }: FinancialPanelProps) {
                   <TableRow key={i}>
                     <TableCell className="font-medium">{dt.type}</TableCell>
                     <TableCell className="text-right">
-                      {formatNumber(dt.count)}
+                      {formatNumber(dt.count, languageTag)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(dt.grossTotal)}
+                      {formatCurrency(dt.grossTotal, languageTag)}
                     </TableCell>
                   </TableRow>
                 ))}

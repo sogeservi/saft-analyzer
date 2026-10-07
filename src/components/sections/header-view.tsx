@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { SaftHeader } from "@/lib/types/saft";
 import type { ValidationError } from "@/lib/types/errors";
+import { useLocale } from "@/lib/i18n";
 
 interface HeaderViewProps {
   header: SaftHeader;
@@ -33,6 +34,7 @@ const HEADER_FIELDS: Array<{ key: string; label: string }> = [
 ];
 
 export function HeaderView({ header, errors }: HeaderViewProps) {
+  const { t } = useLocale();
   const headerRecord = header as unknown as Record<string, unknown>;
 
   return (
@@ -41,7 +43,7 @@ export function HeaderView({ header, errors }: HeaderViewProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-destructive">
-              Erros ({errors.length})
+              {t("Erros")} ({errors.length})
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -59,7 +61,7 @@ export function HeaderView({ header, errors }: HeaderViewProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Informação do cabeçalho</CardTitle>
+          <CardTitle>{t("Informação do cabeçalho")}</CardTitle>
         </CardHeader>
         <CardContent>
           <dl className="grid gap-3 sm:grid-cols-2">
@@ -69,7 +71,7 @@ export function HeaderView({ header, errors }: HeaderViewProps) {
                 return null;
               return (
                 <div key={key} className="space-y-1">
-                  <dt className="text-xs text-muted-foreground">{label}</dt>
+                  <dt className="text-xs text-muted-foreground">{t(label)}</dt>
                   <dd className="text-sm font-medium">{String(value)}</dd>
                 </div>
               );
@@ -81,34 +83,34 @@ export function HeaderView({ header, errors }: HeaderViewProps) {
       {header.companyAddress && (
         <Card>
           <CardHeader>
-            <CardTitle>Morada</CardTitle>
+            <CardTitle>{t("Morada")}</CardTitle>
           </CardHeader>
           <CardContent>
             <dl className="grid gap-3 sm:grid-cols-2">
               {header.companyAddress.addressDetail && (
                 <div className="space-y-1 sm:col-span-2">
-                  <dt className="text-xs text-muted-foreground">Morada</dt>
+                  <dt className="text-xs text-muted-foreground">{t("Morada")}</dt>
                   <dd className="text-sm font-medium">
                     {header.companyAddress.addressDetail}
                   </dd>
                 </div>
               )}
               <div className="space-y-1">
-                <dt className="text-xs text-muted-foreground">Cidade</dt>
+                <dt className="text-xs text-muted-foreground">{t("Cidade")}</dt>
                 <dd className="text-sm font-medium">
                   {header.companyAddress.city}
                 </dd>
               </div>
               <div className="space-y-1">
                 <dt className="text-xs text-muted-foreground">
-                  Código postal
+                  {t("Código postal")}
                 </dt>
                 <dd className="text-sm font-medium">
                   {header.companyAddress.postalCode}
                 </dd>
               </div>
               <div className="space-y-1">
-                <dt className="text-xs text-muted-foreground">País</dt>
+                <dt className="text-xs text-muted-foreground">{t("País")}</dt>
                 <dd className="text-sm font-medium">
                   {header.companyAddress.country}
                 </dd>

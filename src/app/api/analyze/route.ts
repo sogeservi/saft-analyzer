@@ -1,118 +1,73 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseSaftStream } from "@/lib/parser/stream-parser";
-import { detectEncoding, detectXmlDeclaredEncoding } from "@/lib/parser/encoding";
-import { runValidation } from "@/lib/validators/engine";
-import { startHotReload } from "@/lib/config/rule-loader";
-
-startHotReload();
+import { ANALYSIS_QUEUE_LIMITS, createAnalysisJob } from "@/lib/server/analysis-queue";
+import { getClientIpKey } from "@/lib/server/client-ip";
+import { isRecord, readJsonBody, RequestBodyError } from "@/lib/server/request-body";
+import { MAX_JSON_REQUEST_BYTES, MAX_SAFT_UPLOAD_BYTES } from "@/lib/request-limits";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const formData = await request.formData();
-  const file = formData.get("file") as File | null;
-
-  if (!file) {
+  const ipKey = getClientIpKey(request);
+  if (!ipKey) {
     return NextResponse.json(
-      { error: "Nenhum ficheiro enviado." },
-      { status: 400 },
-    );
-  }
-
-  if (!file.name.toLowerCase().endsWith(".xml")) {
-    return NextResponse.json(
-      { error: "Formato inválido. Apenas ficheiros .xml são aceites." },
-      { status: 400 },
+      { error: "Não foi possível validar o endereço IP desta ligação." },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   }
 
   try {
-    const rawBuffer = Buffer.from(await file.arrayBuffer());
-
-    const encodingResult = detectEncoding(rawBuffer);
-    const xmlStart = rawBuffer.toString("utf-8", 0, Math.min(rawBuffer.length, 2000));
-    const declaredEncoding = detectXmlDeclaredEncoding(xmlStart);
-
-    let buffer = rawBuffer;
-    const LEGACY_ENCODINGS = new Set([
-      "WINDOWS-1252", "ISO-8859-1", "ISO-8859-15", "LATIN1", "LATIN-1",
-    ]);
-    if (declaredEncoding && LEGACY_ENCODINGS.has(declaredEncoding.toUpperCase())) {
-      const decoded = new TextDecoder(declaredEncoding).decode(rawBuffer);
-      const reEncoded = decoded.replace(
-        /encoding=["'][^"']+["']/,
-        'encoding="UTF-8"',
+    const body: unknown = await readJsonBody(request, MAX_JSON_REQUEST_BYTES);
+    if (
+      !isRecord(body) ||
+      typeof body.fileName !== "string" ||
+      typeof body.fileSize !== "number" ||
+      !Number.isSafeInteger(body.fileSize) ||
+      body.fileSize <= 0
+    ) {
+      return NextResponse.json(
+        { error: "Indique um nome e tamanho de ficheiro válidos." },
+        { status: 400, headers: { "Cache-Control": "no-store" } },
       );
-      buffer = Buffer.from(reEncoded, "utf-8");
+    }
+    if (body.fileSize > MAX_SAFT_UPLOAD_BYTES) {
+      return NextResponse.json(
+        { error: "O limite por ficheiro é 100 MiB." },
+        { status: 413, headers: { "Cache-Control": "no-store" } },
+      );
     }
 
-    const saftData = await parseSaftStream(buffer);
-
-    const INVOICING_BASES = new Set(["F", "S", "P", "R", "T"]);
-    const basis = saftData.header.taxAccountingBasis;
-    if (basis && !INVOICING_BASES.has(basis)) {
-      const basisLabels: Record<string, string> = {
-        C: "Contabilidade",
-        E: "Contabilidade e Faturação (exportação)",
-        I: "Contabilidade Integrada",
-      };
-      const basisLabel = basisLabels[basis] ?? basis;
+    const created = createAnalysisJob(ipKey, body.fileName, body.fileSize);
+    if (!created.ok) {
+      const isIpActive = created.reason === "ip-active";
       return NextResponse.json(
         {
-          error: `Este ficheiro SAF-T é do tipo "${basisLabel}" (TaxAccountingBasis="${basis}"). Apenas ficheiros de faturação (F, S, P, R, T) são aceites.`,
+          error: isIpActive
+            ? "Já existe uma análise sua ativa ou em fila."
+            : "A fila está cheia. Tente novamente dentro de momentos.",
         },
-        { status: 400 },
+        {
+          status: isIpActive ? 429 : 503,
+          headers: { "Cache-Control": "no-store", "Retry-After": "30" },
+        },
       );
     }
 
-    const result = runValidation(saftData, file.name, file.size);
-
-    // Add encoding info as warnings if mismatch
-    if (
-      declaredEncoding &&
-      encodingResult.encoding !== "ascii" &&
-      declaredEncoding.toLowerCase().replace("-", "") !==
-        encodingResult.encoding.replace("-", "")
-    ) {
-      result.errors.unshift({
-        code: "XML_002",
-        severity: "error",
-        message: `Encoding declarado '${declaredEncoding}' difere do encoding detetado '${encodingResult.encoding}'.`,
-        explanation:
-          "O encoding da declaração XML não corresponde ao encoding real do ficheiro.",
-        path: "XML Declaration",
-        section: "XML",
-        autoFixable: false,
-      });
-    }
-
-    if (encodingResult.hasBOM && encodingResult.encoding === "utf-8") {
-      result.errors.unshift({
-        code: "XML_003",
-        severity: "warning",
-        message:
-          "Ficheiro UTF-8 com BOM detetado. Alguns parsers podem ter problemas.",
-        explanation:
-          "Ficheiros UTF-8 com BOM são tecnicamente válidos mas podem causar problemas em alguns sistemas.",
-        path: "File",
-        section: "XML",
-        autoFixable: false,
-      });
-    }
-
-    // Recalculate error summary after adding XML errors
-    result.errorSummary.total = result.errors.length;
-    for (const err of result.errors) {
-      if (err.section === "XML") {
-        result.errorSummary.bySection["XML"] =
-          (result.errorSummary.bySection["XML"] ?? 0) + 1;
-      }
-    }
-
-    return NextResponse.json(result);
+    return NextResponse.json(
+      {
+        jobId: created.id,
+        ...created.status,
+        queueLimit: ANALYSIS_QUEUE_LIMITS.maxConcurrent,
+      },
+      { status: 202, headers: { "Cache-Control": "no-store, max-age=0" } },
+    );
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Erro desconhecido ao processar o ficheiro.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    if (error instanceof RequestBodyError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status, headers: { "Cache-Control": "no-store" } },
+      );
+    }
+    return NextResponse.json(
+      { error: "Não foi possível iniciar a análise deste ficheiro." },
+      { status: 400, headers: { "Cache-Control": "no-store" } },
+    );
   }
 }

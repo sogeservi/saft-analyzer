@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SAF-T Analyzer
 
-## Getting Started
+Aplicação web da [Sogeservi](https://sogeservi.pt) para analisar e validar ficheiros SAF-T (PT) de faturação. Consulte erros, avisos, totais financeiros e registos do ficheiro num único lugar.
 
-First, run the development server:
+URL publico previsto: https://saft.sogeservi.pt (ainda nao disponivel).
+
+## Pré-visualização
+
+![Painel de resultados do SAF-T Analyzer](docs/preview.png)
+
+## Funcionalidades
+
+- Analisa ficheiros SAF-T (PT) de faturação; ficheiros apenas de contabilidade não sao suportados.
+- Valida a estrutura XML, dados mestres, documentos, pagamentos, referências e cadeias de hash.
+- Apresenta erros e avisos com a respetiva localização, resumos financeiros e dados por secção.
+- Exporta relatórios PDF com a marca Sogeservi, folhas de cálculo Excel e propostas de correção em JSON.
+- Permite partilhar um relatório através de uma ligação temporária de 24 horas.
+- Deteta o idioma do navegador: português para navegadores em português e inglês nos restantes casos.
+
+## Privacidade e limites
+
+Os ficheiros e relatórios são processados sem gravação em disco. A análise fica no navegador e não e guardada pelo servidor depois de concluída. Se o utilizador criar uma ligação de partilha, os dados completos do relatório ficam disponíveis por até 24 horas.
+
+- Cada SAF-T pode ter até 100 MiB. O navegador envia-o em partes de 5 MiB, apenas depois de a análise receber uma vaga na fila.
+- São processadas até 10 análises em simultâneo por processo Node.js; as restantes aguardam numa fila com posição apresentada ao utilizador. Cada endereço IP pode ter uma análise ativa de cada vez.
+- Relatórios e ligações estão limitados a 5 pedidos por IP por minuto e 100 pedidos por minuto no total. Cada ligação pode conter até 10 MiB e cada IP pode manter até 10 ligações ativas. As ligações expiram após 24 horas.
+- O estado da fila, os limites e as ligações são locais ao processo. Esta configuração destina-se a uma única instancia Node.js; várias replicas não partilham esses limites nem as ligações.
+- Em produção, o endereço IP e obtido do cabeçalho `CF-Connecting-IP`. Use um proxy Cloudflare que substitua esse cabeçalho e restrinja o acesso direto à origem.
+
+Com a Cloudflare, cada pedido de bloco fica muito abaixo do limite documentado de 100 MB por pedido nos planos Free e Pro. O tamanho total do SAF-T pode assim exceder o limite por pedido, desde que cada bloco continue abaixo do limite configurado na zona. Consulte os [limites de carregamento da Cloudflare](https://developers.cloudflare.com/cache/concepts/default-cache-behavior/#upload-limits).
+
+## Executar localmente
+
+Requisitos: Node.js 24 e npm.
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Executar com Docker
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+docker compose up --build
+```
 
-## Learn More
+O Compose associa a porta a máquina local. Para uma instalação pública, use HTTPS e um proxy configurado para encaminhar os pedidos sem armazenar respostas da API em cache. Não configure volumes persistentes para ficheiros ou resultados.
 
-To learn more about Next.js, take a look at the following resources:
+## Desenvolvimento
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+As regras de validação estão em [`rules/`](rules/). A aplicação usa Next.js, React, TypeScript e Tailwind CSS.
 
-## Deploy on Vercel
+## Contribuir
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Sugestões e contribuições sao bem-vindas através de issues e pull requests. Para reportar um problema, use um exemplo SAF-T sintetico e mínimo; não envie ficheiros reais de empresas nem dados pessoais.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Licença
+
+Este repositório ainda não tem uma licença definida. Inclua a licença aprovada pelo titular antes de o distribuir como projeto de código aberto.

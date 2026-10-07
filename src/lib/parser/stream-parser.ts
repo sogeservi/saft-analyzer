@@ -112,6 +112,18 @@ function obj(value: unknown): Raw {
 
 export type ProgressCallback = (progress: AnalysisProgress) => void;
 
+export class XmlParseError extends Error {
+  readonly line: number;
+  readonly column: number;
+
+  constructor(message: string, line: number, column: number) {
+    super(message);
+    this.name = "XmlParseError";
+    this.line = line;
+    this.column = column;
+  }
+}
+
 export async function parseSaftStream(
   input: ReadableStream<Uint8Array> | Buffer,
   onProgress?: ProgressCallback,
@@ -264,12 +276,14 @@ export async function parseSaftStream(
     }
 
     parser.on("error", (err: Error) => {
-      reject(new Error(`Erro de XML na linha ${(parser as unknown as { _parser: { line: number } })._parser?.line ?? "?"}: ${err.message}`));
+      const { line, column } = parser._parser;
+      const message = err.message.split(/\r?\nLine:/, 1)[0].trim();
+      reject(new XmlParseError(message, line + 1, column + 1));
     });
 
     parser.on("end", () => {
       if (!rootResult) {
-        reject(new Error("Documento XML vazio ou inválido"));
+        reject(new XmlParseError("O ficheiro está vazio ou não contém um elemento XML válido.", 1, 1));
         return;
       }
 

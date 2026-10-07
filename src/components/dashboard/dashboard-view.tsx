@@ -5,7 +5,6 @@ import { FinancialPanel } from "./financial-panel";
 import { HealthPanel } from "./health-panel";
 import { SectionCards } from "./section-cards";
 import { ExportMenu } from "@/components/export/export-menu";
-import { ShareDialog } from "@/components/export/share-dialog";
 import { formatDuration } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,6 +16,8 @@ import {
   MonitorDown,
 } from "lucide-react";
 import { APP_BUILD_INFO } from "@/lib/build-info";
+import { ShareDialog } from "@/components/export/share-dialog";
+import { useLocale } from "@/lib/i18n";
 
 interface DashboardViewProps {
   result: AnalysisResult;
@@ -27,6 +28,7 @@ export function DashboardView({
   result,
   onSectionSelect,
 }: DashboardViewProps) {
+  const { t, languageTag } = useLocale();
   const address = result.header.companyAddress;
   const companyDetails = [
     {
@@ -48,17 +50,17 @@ export function DashboardView({
       label: [result.header.productID, result.header.productVersion]
         .filter(Boolean)
         .join(" "),
-      prefix: "Exportado por",
+      prefix: t("Exportado por"),
       icon: MonitorDown,
     },
     {
       label: result.header.productCompanyTaxID ?? "",
-      prefix: "NIF do produtor",
+      prefix: t("NIF do produtor"),
       icon: null,
     },
     {
       label: result.header.softwareCertificateNumber ?? "",
-      prefix: "Certificado",
+      prefix: t("Certificado"),
       icon: null,
     },
   ].filter(({ label }) => Boolean(label));
@@ -83,12 +85,12 @@ export function DashboardView({
                 ) : (
                   <FileWarning className="size-3.5" />
                 )}
-                SAF-T {result.saftType === "complete" ? "completo" : "parcial"}
+                SAF-T {result.saftType === "complete" ? t("completo") : t("parcial")}
               </Badge>
               <span className="text-xs text-slate-300">SAF-T {result.saftVersion}</span>
               <span
                 className="text-xs text-slate-300"
-                title={`Atualizado em ${APP_BUILD_INFO.date}`}
+                title={`${t("Atualizado em")} ${APP_BUILD_INFO.date}`}
               >
                 App {APP_BUILD_INFO.version} · {APP_BUILD_INFO.date}
               </span>
@@ -99,13 +101,12 @@ export function DashboardView({
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-slate-300">
               <span className="inline-flex items-center gap-1.5">
                 <Building2 className="size-4 text-cyan-300" />
-                NIF {result.header.taxRegistrationNumber}
+                {t("NIF")} {result.header.taxRegistrationNumber}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <CalendarDays className="size-4 text-cyan-300" />
-                {result.header.startDate} a {result.header.endDate}
+                {result.header.startDate} {t("a")} {result.header.endDate}
               </span>
-              <span>Analisado em {formatDuration(result.duration)}</span>
             </div>
             {companyDetails.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-300">
@@ -135,9 +136,7 @@ export function DashboardView({
             )}
             {result.saftType === "partial" && (
               <p className="mt-3 max-w-2xl text-sm text-rose-100">
-                Este ficheiro não inclui a lista de produtos ou a tabela de
-                impostos. Exporte um SAF-T completo para validar os restantes
-                dados.
+                {t("Este ficheiro não inclui a lista de produtos ou a tabela de impostos. Exporte um SAF-T completo para validar os restantes dados.")}
               </p>
             )}
           </div>
@@ -146,6 +145,9 @@ export function DashboardView({
             <ShareDialog result={result} />
           </div>
         </div>
+        <p className="mt-3 text-right text-xs text-slate-400">
+          {t("Analisado em")} {formatDuration(result.duration, languageTag)}
+        </p>
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">

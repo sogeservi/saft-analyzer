@@ -22,7 +22,7 @@ export const ACTIVITY_PERIOD_LABELS: Record<ActivityPeriod, string> = {
   year: "ano",
 };
 
-export function groupFinancialActivity(dayStats: DayStats[]): ActivitySeries {
+export function groupFinancialActivity(dayStats: DayStats[], locale = "pt-PT"): ActivitySeries {
   const validStats = dayStats
     .map((day) => ({ day, date: new Date(`${day.date}T00:00:00.000Z`) }))
     .filter(({ date }) => !Number.isNaN(date.getTime()))
@@ -37,12 +37,12 @@ export function groupFinancialActivity(dayStats: DayStats[]): ActivitySeries {
     spanDays <= 1095 ? "month" :
     spanDays <= 4380 ? "quarter" : "year";
   const buckets = new Map<string, ActivityBucket>();
-  const shortDate = new Intl.DateTimeFormat("pt-PT", {
+  const shortDate = new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "short",
     timeZone: "UTC",
   });
-  const monthDate = new Intl.DateTimeFormat("pt-PT", {
+  const monthDate = new Intl.DateTimeFormat(locale, {
     month: "short",
     year: "numeric",
     timeZone: "UTC",

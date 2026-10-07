@@ -2,11 +2,4 @@ node_modules
 .next
 .git
 *.md
-tailscale
-caddy-data
-caddy-config
-Caddyfile
-docker-compose.yml
-cert.crt
-cert.key
 .env*

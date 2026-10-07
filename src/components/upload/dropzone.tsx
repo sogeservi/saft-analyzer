@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 interface DropzoneProps {
   onFiles: (files: File[]) => void;
@@ -10,6 +11,7 @@ interface DropzoneProps {
 }
 
 export function Dropzone({ onFiles, disabled }: DropzoneProps) {
+  const { t } = useLocale();
   const [dragActive, setDragActive] = useState(false);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -62,9 +64,9 @@ export function Dropzone({ onFiles, disabled }: DropzoneProps) {
     >
       <Upload className="size-10 text-muted-foreground" />
       <div className="text-center">
-        <p className="text-lg font-medium">Arraste ficheiros SAF-T para aqui</p>
+        <p className="text-lg font-medium">{t("Arraste ficheiros SAF-T para aqui")}</p>
         <p className="text-sm text-muted-foreground">
-          ou clique para selecionar ficheiros .xml
+          {t("ou clique para selecionar ficheiros .xml")}
         </p>
       </div>
       <input

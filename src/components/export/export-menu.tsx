@@ -11,12 +11,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { AnalysisResult } from "@/lib/types/analysis";
+import { useLocale } from "@/lib/i18n";
 
 interface ExportMenuProps {
   result: AnalysisResult;
 }
 
 export function ExportMenu({ result }: ExportMenuProps) {
+  const { t } = useLocale();
   const [exporting, setExporting] = useState(false);
 
   const handleExport = async (format: "pdf" | "xlsx") => {
@@ -29,10 +31,11 @@ export function ExportMenu({ result }: ExportMenuProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(result),
+        cache: "no-store",
       });
 
       if (!response.ok)
-        throw new Error(`Erro ao exportar ${format.toUpperCase()}`);
+        throw new Error(`${t("Erro ao exportar")} ${format.toUpperCase()}`);
 
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
@@ -44,9 +47,9 @@ export function ExportMenu({ result }: ExportMenuProps) {
           ?.match(/filename="(.+)"/)?.[1] ?? `saft-export.${format}`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success(`${format.toUpperCase()} exportado com sucesso`);
+      toast.success(`${format.toUpperCase()} ${t("exportado com sucesso")}`);
     } catch {
-      toast.error(`Erro ao exportar ${format.toUpperCase()}`);
+      toast.error(`${t("Erro ao exportar")} ${format.toUpperCase()}`);
     } finally {
       setExporting(false);
     }
@@ -57,13 +60,13 @@ export function ExportMenu({ result }: ExportMenuProps) {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" disabled={exporting}>
           <Download className="size-4" />
-          Exportar
+          {t("Exportar")}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => handleExport("pdf")}>
           <FileText className="size-4" />
-          Relatório PDF
+          {t("Relatório PDF")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleExport("xlsx")}>
           <Table2 className="size-4" />

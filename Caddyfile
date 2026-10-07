@@ -1,9 +1,0 @@
-analisadorsaft.sogeservi.local {
-	tls /etc/caddy/cert.crt /etc/caddy/cert.key
-
-	reverse_proxy saft-analyzer:3000
-}
-
-:80 {
-	redir https://{host}{uri} permanent
-}

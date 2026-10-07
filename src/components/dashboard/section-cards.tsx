@@ -17,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { AnalysisResult } from "@/lib/types/analysis";
 import { formatNumber } from "@/lib/format";
+import { useLocale } from "@/lib/i18n";
 
 interface SectionCardsProps {
   result: AnalysisResult;
@@ -116,15 +117,16 @@ const SECTIONS: SectionDef[] = [
 ];
 
 export function SectionCards({ result, onSelect }: SectionCardsProps) {
+  const { t, languageTag } = useLocale();
   return (
     <div>
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <h3 className="text-lg font-semibold">Explorar o ficheiro</h3>
-          <p className="mt-1 text-sm text-muted-foreground">Abra uma secção para consultar os registos e respetivas validações.</p>
+          <h3 className="text-lg font-semibold">{t("Explorar o ficheiro")}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{t("Abra uma secção para consultar os registos e respetivas validações.")}</p>
         </div>
         <span className="hidden rounded-full border bg-muted/50 px-3 py-1 text-xs text-muted-foreground sm:inline-flex">
-          {SECTIONS.length - 1} secções
+          {SECTIONS.length - 1} {t("secções")}
         </span>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -147,11 +149,11 @@ export function SectionCards({ result, onSelect }: SectionCardsProps) {
                     <Icon className="size-5" aria-hidden="true" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">{sec.label}</p>
+                    <p className="text-sm font-medium">{t(sec.label)}</p>
                     <p className="text-xs text-muted-foreground">
                       {sec.id === "errors"
-                        ? `${formatNumber(count)} erros encontrados`
-                        : formatNumber(count)}
+                        ? `${formatNumber(count, languageTag)} ${t("erros encontrados")}`
+                        : formatNumber(count, languageTag)}
                     </p>
                   </div>
                   {errors > 0 && (

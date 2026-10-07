@@ -246,9 +246,16 @@ export function buildPdfDefinition(result: AnalysisResult): TDocumentDefinitions
       color: "#64748B",
     },
     footer: (currentPage: number, pageCount: number) => ({
-      text: `Página ${currentPage} de ${pageCount}  |  SAF-T Analyzer`,
-      alignment: "center",
-      margin: [0, 12, 0, 0],
+      columns: [
+        { text: `Página ${currentPage} de ${pageCount}  |  SAF-T Analyzer`, width: "*" },
+        {
+          text: "Made by SogeServi",
+          link: "https://sogeservi.pt",
+          alignment: "right",
+          width: "auto",
+        },
+      ],
+      margin: [32, 12, 32, 0],
       fontSize: 7,
       color: "#64748B",
     }),
@@ -267,7 +274,7 @@ export function buildPdfDefinition(result: AnalysisResult): TDocumentDefinitions
     ],
     info: {
       title: `Análise SAF-T - ${result.header.companyName}`,
-      author: "SAF-T Analyzer",
+      author: "SogeServi | SAF-T Analyzer",
       subject: `Versão ${APP_BUILD_INFO.version}`,
       keywords: "SAF-T, análise, validação",
     },
