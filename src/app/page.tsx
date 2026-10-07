@@ -150,6 +150,7 @@ export default function HomePage() {
 
     let firstCompletedId: string | null = null;
     for (const entry of pendingFiles) {
+      const submittedAt = performance.now();
       const file = entry.file;
       if (!file) {
         dispatch({
@@ -176,7 +177,15 @@ export default function HomePage() {
             progress: progress.percentage,
           });
         });
-        dispatch({ type: "SET_FILE_STATUS", id: entry.id, status: "complete", result });
+        dispatch({
+          type: "SET_FILE_STATUS",
+          id: entry.id,
+          status: "complete",
+          result: {
+            ...result,
+            duration: Math.round(performance.now() - submittedAt),
+          },
+        });
         if (!firstCompletedId) firstCompletedId = entry.id;
         toast.success(entry.name + " " + t("analisado com sucesso!"));
       } catch (error) {
