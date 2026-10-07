@@ -1,8 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
-
-export type AppLocale = "en" | "pt";
+import type { AppLocale } from "./locale";
 
 const messages: Record<AppLocale, Record<string, string>> = {
   pt: {},

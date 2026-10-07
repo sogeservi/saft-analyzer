@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
-import { resolveLocale } from "@/lib/i18n";
+import { resolveLocale } from "@/lib/locale";
 import { headers } from "next/headers";
 import { Building2, Github } from "lucide-react";
 import "./globals.css";

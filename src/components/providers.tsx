@@ -2,7 +2,8 @@
 
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
-import { LocaleProvider, type AppLocale } from "@/lib/i18n";
+import { LocaleProvider } from "@/lib/i18n";
+import type { AppLocale } from "@/lib/locale";
 
 export function Providers({ children, locale }: { children: React.ReactNode; locale: AppLocale }) {
   return (
