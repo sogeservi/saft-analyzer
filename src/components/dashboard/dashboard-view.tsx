@@ -30,18 +30,6 @@ export function DashboardView({
   const address = result.header.companyAddress;
   const companyDetails = [
     {
-      label: result.header.businessName
-        ? `Nome comercial: ${result.header.businessName}`
-        : "",
-      icon: null,
-    },
-    {
-      label: result.header.companyID
-        ? `ID da empresa: ${result.header.companyID}`
-        : "",
-      icon: Building2,
-    },
-    {
       label: address?.addressDetail || address?.city || address?.country
         ? [
             address.addressDetail,

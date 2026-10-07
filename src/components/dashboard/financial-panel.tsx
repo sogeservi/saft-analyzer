@@ -166,12 +166,12 @@ export function FinancialPanel({ summary }: FinancialPanelProps) {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <rect
-                              x={index * slot + (slot - barWidth) / 2}
-                              y={140 - height}
-                              width={barWidth}
-                              height={height}
-                              rx="3"
-                              fill="url(#activity-bars)"
+                              x={index * slot}
+                              y="32"
+                              width={slot}
+                              height="108"
+                              fill="transparent"
+                              pointerEvents="all"
                               tabIndex={0}
                               role="img"
                               aria-label={`${bucket.label}: ${formatCurrency(bucket.grossTotal)}, ${formatNumber(bucket.documentCount)} documentos`}
@@ -184,6 +184,16 @@ export function FinancialPanel({ summary }: FinancialPanelProps) {
                             <p>{formatNumber(bucket.documentCount)} documentos</p>
                           </TooltipContent>
                         </Tooltip>
+                        <rect
+                          x={index * slot + (slot - barWidth) / 2}
+                          y={140 - height}
+                          width={barWidth}
+                          height={height}
+                          rx="3"
+                          fill="url(#activity-bars)"
+                          pointerEvents="none"
+                          aria-hidden="true"
+                        />
                         {showLabel && (
                           <text
                             x={index * slot + slot / 2}
