@@ -65,12 +65,12 @@ export function DashboardView({
 
   return (
     <div className="mx-auto max-w-screen-2xl space-y-6">
-      <section className="relative isolate overflow-hidden rounded-2xl border bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 px-6 py-7 text-white shadow-lg sm:px-8">
+      <section className="relative isolate overflow-hidden rounded-2xl border bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 px-5 py-5 text-white shadow-lg sm:px-6">
         <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-16 -z-10 size-72 rounded-full border-[28px] border-white/5" />
         <div aria-hidden="true" className="pointer-events-none absolute -bottom-36 right-32 -z-10 size-72 rounded-full border border-cyan-300/15" />
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0">
-            <div className="mb-3 flex flex-wrap items-center gap-2">
+            <div className="mb-2 flex flex-wrap items-center gap-2">
               <Badge
                 className={
                   result.saftType === "complete"
@@ -93,10 +93,10 @@ export function DashboardView({
                 App {APP_BUILD_INFO.version} · {APP_BUILD_INFO.date}
               </span>
             </div>
-            <h2 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h2 className="truncate text-2xl font-semibold tracking-tight sm:text-2xl">
               {result.header.companyName}
             </h2>
-            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-300">
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-slate-300">
               <span className="inline-flex items-center gap-1.5">
                 <Building2 className="size-4 text-cyan-300" />
                 NIF {result.header.taxRegistrationNumber}
@@ -108,7 +108,7 @@ export function DashboardView({
               <span>Analisado em {formatDuration(result.duration)}</span>
             </div>
             {companyDetails.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-slate-300">
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-300">
                 {companyDetails.map(({ label, icon: Icon }) => (
                   <span
                     key={label}
@@ -121,7 +121,7 @@ export function DashboardView({
               </div>
             )}
             {exporterDetails.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-slate-300">
+              <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-300">
                 {exporterDetails.map(({ label, prefix, icon: Icon }) => (
                   <span
                     key={`${prefix}-${label}`}
@@ -134,7 +134,7 @@ export function DashboardView({
               </div>
             )}
             {result.saftType === "partial" && (
-              <p className="mt-4 max-w-2xl text-sm text-rose-100">
+              <p className="mt-3 max-w-2xl text-sm text-rose-100">
                 Este ficheiro não inclui a lista de produtos ou a tabela de
                 impostos. Exporte um SAF-T completo para validar os restantes
                 dados.
