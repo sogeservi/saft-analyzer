@@ -106,6 +106,7 @@ export interface AnalysisResult {
   analyzedAt: string;
   duration: number;
   saftVersion: string;
+  saftType: "complete" | "partial";
   header: SaftHeader;
   saftData: SaftFile;
   financialSummary: FinancialSummary;

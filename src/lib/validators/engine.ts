@@ -37,6 +37,25 @@ export function runValidation(
 ): AnalysisResult {
   const startTime = Date.now();
   const errors: ValidationError[] = [];
+  const hashChainResults: HashChainResult[] = [];
+  const saftType =
+    saftData.masterFiles.products.length > 0 &&
+    saftData.masterFiles.taxTable.length > 0
+      ? "complete"
+      : "partial";
+
+  if (saftType === "partial") {
+    errors.push({
+      code: "SAFT_PARTIAL",
+      severity: "critical",
+      message: "Ficheiro SAF-T parcial. É necessária uma exportação completa para análise.",
+      explanation:
+        "A lista de produtos ou a tabela de impostos está em falta. Exporte o ficheiro SAF-T completo e volte a analisá-lo.",
+      path: "MasterFiles",
+      section: "SAFT",
+      autoFixable: false,
+    });
+  } else {
 
   onProgress?.({
     phase: "business-rules",
@@ -112,9 +131,10 @@ export function runValidation(
     errorsFound: errors.length,
     currentSection: "HashChain",
   });
-  const hashChainResults = validateHashChains(saftData);
+  hashChainResults.push(...validateHashChains(saftData));
   for (const hcr of hashChainResults) {
     errors.push(...hcr.errors);
+  }
   }
 
   const financialSummary = buildFinancialSummary(saftData);
@@ -128,6 +148,7 @@ export function runValidation(
     analyzedAt: new Date().toISOString(),
     duration: Date.now() - startTime,
     saftVersion: saftData.header.auditFileVersion,
+    saftType,
     header: saftData.header,
     saftData,
     financialSummary,
