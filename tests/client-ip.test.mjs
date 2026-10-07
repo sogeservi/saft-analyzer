@@ -16,8 +16,8 @@ test.afterEach(() => {
   delete process.env.TRUST_PROXY_HEADERS;
 });
 
-function request(headers = {}, ip) {
-  const incoming = new Request("http://localhost", { headers });
+function request(headers = {}, ip, url = "http://localhost") {
+  const incoming = new Request(url, { headers });
   if (ip) Object.defineProperty(incoming, "ip", { value: ip });
   return incoming;
 }
@@ -89,11 +89,22 @@ test("does not trust proxy headers when TRUST_PROXY_HEADERS is false", () => {
       "cf-connecting-ip": "203.0.113.1",
       "x-forwarded-for": "203.0.113.2",
       "x-real-ip": "203.0.113.3",
-    }),
+    }, undefined, "https://saft.example.com"),
   );
 
   // #then
   assert.equal(result, null);
+});
+
+test("uses a local address when proxy trust is disabled for localhost", () => {
+  // #given
+  process.env.TRUST_PROXY_HEADERS = "false";
+
+  // #when
+  const result = getClientIpKey(request({ "x-forwarded-for": "203.0.113.4" }));
+
+  // #then
+  assert.equal(result, getClientIpKey(request({}, "127.0.0.1")));
 });
 
 test("uses the runtime request IP when proxy-header trust is disabled", () => {

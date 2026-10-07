@@ -1,8 +1,8 @@
 # SAF-T Analyzer
 
-Aplicação web da [Sogeservi](https://sogeservi.pt) para analisar e validar ficheiros SAF-T (PT) de faturação. Consulte erros, avisos, totais financeiros e registos do ficheiro num único lugar.
+Aplicação web da [Sogeservi](https://sogeservi.pt) para analisar e validar ficheiros SAF-T (PT) de faturação. Consulte erros, avisos, totais financeiros e registos do ficheiro num só lugar.
 
-URL publico previsto: https://saft.sogeservi.pt (ainda nao disponivel).
+**[Versão web](https://saft.sogeservi.pt)**
 
 ## Pré-visualização
 
@@ -10,7 +10,7 @@ URL publico previsto: https://saft.sogeservi.pt (ainda nao disponivel).
 
 ## Funcionalidades
 
-- Analisa ficheiros SAF-T (PT) de faturação; ficheiros apenas de contabilidade não sao suportados.
+- Analisa ficheiros SAF-T (PT) de faturação; ficheiros apenas de contabilidade não são suportados.
 - Valida a estrutura XML, dados mestres, documentos, pagamentos, referências e cadeias de hash.
 - Apresenta erros e avisos com a respetiva localização, resumos financeiros e dados por secção.
 - Exporta relatórios PDF com a marca Sogeservi, folhas de cálculo Excel e propostas de correção em JSON.
@@ -19,15 +19,14 @@ URL publico previsto: https://saft.sogeservi.pt (ainda nao disponivel).
 
 ## Privacidade e limites
 
-Os ficheiros e relatórios são processados sem gravação em disco. A análise fica no navegador e não e guardada pelo servidor depois de concluída. Se o utilizador criar uma ligação de partilha, os dados completos do relatório ficam disponíveis por até 24 horas.
+Os ficheiros são processados sem serem guardados em disco. Os resultados são apresentados no navegador e não ficam guardados no servidor após a análise. Se criar uma ligação de partilha, os dados completos do relatório ficam disponíveis durante 24 horas.
 
 - Cada SAF-T pode ter até 100 MiB. O navegador envia-o em partes de 5 MiB, apenas depois de a análise receber uma vaga na fila.
 - São processadas até 10 análises em simultâneo por processo Node.js; as restantes aguardam numa fila com posição apresentada ao utilizador. Cada endereço IP pode ter uma análise ativa de cada vez.
 - Relatórios e ligações estão limitados a 5 pedidos por IP por minuto e 100 pedidos por minuto no total. Cada ligação pode conter até 10 MiB e cada IP pode manter até 10 ligações ativas. As ligações expiram após 24 horas.
-- O estado da fila, os limites e as ligações são locais ao processo. Esta configuração destina-se a uma única instancia Node.js; várias replicas não partilham esses limites nem as ligações.
-- Por predefinição, o IP é obtido de `CF-Connecting-IP`; se faltar ou for inválido, usamos o primeiro endereço válido de `X-Forwarded-For` ou `X-Real-IP`. Sem esses cabeçalhos, usamos o IP disponibilizado pelo runtime. Configure `TRUST_PROXY_HEADERS=false` para ignorar todos os cabeçalhos de proxy. Use apenas proxies que substituam estes valores e restrinja o acesso direto à origem.
-
-Com a Cloudflare, cada pedido de bloco fica muito abaixo do limite documentado de 100 MB por pedido nos planos Free e Pro. O tamanho total do SAF-T pode assim exceder o limite por pedido, desde que cada bloco continue abaixo do limite configurado na zona. Consulte os [limites de carregamento da Cloudflare](https://developers.cloudflare.com/cache/concepts/default-cache-behavior/#upload-limits).
+- O estado da fila, os limites e as ligações são locais ao processo. Esta configuração destina-se a uma única instância Node.js; várias réplicas não partilham esses limites nem as ligações.
+- Por predefinição, o IP é obtido de `CF-Connecting-IP`; se faltar ou for inválido, a aplicação usa o primeiro endereço válido de `X-Forwarded-For` ou, em seguida, de `X-Real-IP`. Se estes cabeçalhos não estiverem disponíveis, usa o IP fornecido pelo runtime.
+- Para executar a aplicação apenas localmente, defina `TRUST_PROXY_HEADERS=false` e aceda através de `localhost`. A aplicação ignora os cabeçalhos de proxy e usa o endereço local. Noutros ambientes, use um proxy de confiança que substitua os cabeçalhos e restrinja o acesso direto à origem.
 
 ## Executar localmente
 
@@ -46,7 +45,7 @@ Abra <http://localhost:3000>.
 docker compose up --build
 ```
 
-O Compose associa a porta a máquina local. Para uma instalação pública, use HTTPS e um proxy configurado para encaminhar os pedidos sem armazenar respostas da API em cache. Não configure volumes persistentes para ficheiros ou resultados.
+O Compose disponibiliza a aplicação na máquina local. Para uma instalação pública, use HTTPS e um proxy configurado para encaminhar os pedidos sem armazenar respostas da API em cache. Não configure volumes persistentes para ficheiros ou resultados.
 
 ## Desenvolvimento
 
@@ -61,8 +60,8 @@ As regras de validação estão em [`rules/`](rules/). A aplicação usa Next.js
 
 ## Contribuir
 
-Sugestões e contribuições sao bem-vindas através de issues e pull requests. Para reportar um problema, use um exemplo SAF-T sintetico e mínimo; não envie ficheiros reais de empresas nem dados pessoais.
+Sugestões e contribuições são bem-vindas através de issues e pull requests. Para reportar um problema, use um exemplo SAF-T sintético e mínimo; não envie ficheiros reais de empresas nem dados pessoais.
 
 ## Licença
 
-Este repositório ainda não tem uma licença definida. Inclua a licença aprovada pelo titular antes de o distribuir como projeto de código aberto.
+Este projeto é distribuído ao abrigo da licença MIT. Consulte o ficheiro [`LICENSE`](LICENSE).

@@ -8,6 +8,13 @@ function getRequestIp(request: Request): string | null {
   return typeof ip === "string" && isIP(ip) !== 0 ? ip : null;
 }
 
+function getLocalRequestIp(request: Request): string | null {
+  const hostname = new URL(request.url).hostname;
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]"
+    ? "127.0.0.1"
+    : null;
+}
+
 function getTrustedProxyIp(request: Request): string | null {
   const cloudflareIp = request.headers.get("cf-connecting-ip")?.trim();
   if (cloudflareIp && isIP(cloudflareIp) !== 0) return cloudflareIp;
@@ -27,8 +34,8 @@ function getTrustedProxyIp(request: Request): string | null {
 export function getClientIpKey(request: Request): string | null {
   const proxyTrustDisabled = process.env.TRUST_PROXY_HEADERS?.toLowerCase() === "false";
   const ip = proxyTrustDisabled
-    ? getRequestIp(request)
-    : getTrustedProxyIp(request) ?? getRequestIp(request);
+    ? getRequestIp(request) ?? getLocalRequestIp(request)
+    : getTrustedProxyIp(request) ?? getRequestIp(request) ?? getLocalRequestIp(request);
   if (!ip) return null;
 
   return createHmac("sha256", processSecret).update(ip).digest("hex");
