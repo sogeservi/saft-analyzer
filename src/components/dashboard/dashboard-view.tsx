@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { APP_BUILD_INFO } from "@/lib/build-info";
 import { useLocale } from "@/lib/i18n";
+import { getPartialSaftNotice } from "@/lib/analysis/partial-saft-notice";
 
 interface DashboardViewProps {
   result: AnalysisResult;
@@ -28,6 +29,7 @@ export function DashboardView({
   onSectionSelect,
 }: DashboardViewProps) {
   const { t, languageTag } = useLocale();
+  const partialSaftNotice = getPartialSaftNotice(result.saftData);
   const address = result.header.companyAddress;
   const companyDetails = [
     {
@@ -133,9 +135,9 @@ export function DashboardView({
                 ))}
               </div>
             )}
-            {result.saftType === "partial" && (
+            {partialSaftNotice && (
               <p className="mt-3 max-w-2xl text-sm text-rose-100">
-                {t("Este ficheiro não inclui a lista de produtos ou a tabela de impostos. Exporte um SAF-T completo para validar os restantes dados.")}
+                {t(partialSaftNotice)}
               </p>
             )}
           </div>
