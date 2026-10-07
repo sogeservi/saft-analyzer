@@ -245,6 +245,8 @@ const messages: Record<AppLocale, Record<string, string>> = {
     "Localidade": "City",
     "NIF do cliente": "Customer tax ID",
     "NIF do fornecedor": "Supplier tax ID",
+    "O NIF genérico '999999990' só pode identificar o cliente 'Consumidor final'.": "The generic tax ID '999999990' can only identify the 'Consumidor final' customer.",
+    "No SAF-T (PT), o NIF 999999990 é reservado ao cliente genérico 'Consumidor final'. Use este registo quando o comprador não forneceu dados de identificação. Se forneceu nome, morada ou NIF, associe a fatura a um registo próprio. Este NIF é apenas para o SAF-T: na fatura, indique o NIF do consumidor se este o solicitar; caso contrário, deixe o campo inutilizado ou indique 'consumidor final'.": "In SAF-T (PT), NIF 999999990 is reserved for the generic 'Consumidor final' customer. Use this record when the buyer provided no identifying details. If they provided a name, address, or tax ID, link the invoice to a separate customer record. This number is for SAF-T only: on the invoice, include the consumer's tax ID if requested; otherwise leave the field blank or write 'consumidor final'.",
     "Contacto": "Contact",
     "Código EAC": "EAC code",
     "Tipo de transação": "Transaction type",

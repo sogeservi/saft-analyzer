@@ -431,16 +431,6 @@ function validateSingleInvoice(
       `Fatura simplificada (FS) '${inv.invoiceNo}' com GrossTotal ${inv.documentTotals.grossTotal.toFixed(2)} > 1000.00 EUR.`,
       `${path}.DocumentTotals.GrossTotal`, inv.invoiceNo, false));
   }
-
-  // INV_045: FS consumer NIF
-  if (inv.invoiceType !== "FS" && inv.invoiceType !== "VD" && inv.invoiceType !== "TV") {
-    const customer = saftData.masterFiles.customers.find((c) => c.customerID === inv.customerID);
-    if (customer?.customerTaxID === "999999990") {
-      errors.push(e("INV_045", "error",
-        `Fatura '${inv.invoiceNo}' (tipo ${inv.invoiceType}) com NIF genérico '999999990'.`,
-        `${path}.CustomerID`, inv.invoiceNo, false));
-    }
-  }
 }
 
 function e(
