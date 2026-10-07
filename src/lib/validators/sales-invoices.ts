@@ -243,7 +243,7 @@ function validateSingleInvoice(
     // INV_018: Line has Credit or Debit
     const hasCredit = line.creditAmount !== undefined && line.creditAmount > 0;
     const hasDebit = line.debitAmount !== undefined && line.debitAmount > 0;
-    if (!hasCredit && !hasDebit) {
+    if (!hasCredit && !hasDebit && line.unitPrice !== 0) {
       errors.push(e("INV_018", "error", `Linha ${line.lineNumber} sem CreditAmount nem DebitAmount.`, lp, inv.invoiceNo, false));
     }
     if (hasCredit && hasDebit) {
