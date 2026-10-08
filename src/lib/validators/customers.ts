@@ -4,6 +4,7 @@ import { validatePtNif, isEuCountry } from "./tax-id";
 
 const ISO_COUNTRIES_RE = /^[A-Z]{2}$/;
 const GENERIC_CONSUMER_NIF = "999999990";
+const GENERIC_CONSUMER_NAME = "consumidor final";
 
 export function validateCustomers(saftData: SaftFile): ValidationError[] {
   const errors: ValidationError[] = [];
@@ -167,6 +168,25 @@ export function validateCustomers(saftData: SaftFile): ValidationError[] {
         path: `${path}`,
         section: "Customers",
         documentId: cust.customerID,
+        autoFixable: false,
+      });
+    }
+
+    // CUST_012: Generic consumer tax ID requires the prescribed customer name
+    if (
+      cust.customerTaxID === GENERIC_CONSUMER_NIF &&
+      cust.companyName.trim().replace(/\s+/g, " ").toLocaleLowerCase("pt-PT") !== GENERIC_CONSUMER_NAME
+    ) {
+      errors.push({
+        code: "CUST_012",
+        severity: "error",
+        message: "O NIF genérico '999999990' só pode identificar o cliente 'Consumidor final'.",
+        explanation: "No SAF-T (PT), o NIF 999999990 é reservado ao cliente genérico 'Consumidor final'. Use este registo quando o comprador não forneceu dados de identificação. Se forneceu nome, morada ou NIF, associe a fatura a um registo próprio. Este NIF é apenas para o SAF-T: na fatura, indique o NIF do consumidor se este o solicitar; caso contrário, deixe o campo inutilizado ou indique 'consumidor final'.",
+        path: `${path}.CompanyName`,
+        section: "Customers",
+        documentId: cust.customerID,
+        originalValue: cust.companyName,
+        suggestedFix: "Consumidor final",
         autoFixable: false,
       });
     }

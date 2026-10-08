@@ -176,13 +176,14 @@ function validateSingleInvoice(
     // INV_009: ATCUD series consistency
     const parts = inv.invoiceNo.split("/");
     const series = parts[0] ?? "";
-    const existingCode = seriesAtcud.get(series);
+    const seriesKey = `${inv.invoiceType}|${series}`;
+    const existingCode = seriesAtcud.get(seriesKey);
     if (existingCode && existingCode !== atcudCode) {
       errors.push(e("INV_009", "error",
-        `ATCUD inconsistente na série '${series}': esperado código '${existingCode}', encontrado '${atcudCode}'.`,
+        `ATCUD com código de validação diferente na série '${series}' (tipo '${inv.invoiceType}'): primeiro código encontrado '${existingCode}', encontrado '${atcudCode}'. Confirme o código registado na AT.`,
         `${path}.ATCUD`, inv.invoiceNo, false));
     }
-    seriesAtcud.set(series, atcudCode);
+    if (!existingCode) seriesAtcud.set(seriesKey, atcudCode);
 
     // INV_010: ATCUD number matches invoice number
     if (parts.length >= 2) {
@@ -242,7 +243,7 @@ function validateSingleInvoice(
     // INV_018: Line has Credit or Debit
     const hasCredit = line.creditAmount !== undefined && line.creditAmount > 0;
     const hasDebit = line.debitAmount !== undefined && line.debitAmount > 0;
-    if (!hasCredit && !hasDebit) {
+    if (!hasCredit && !hasDebit && line.unitPrice !== 0) {
       errors.push(e("INV_018", "error", `Linha ${line.lineNumber} sem CreditAmount nem DebitAmount.`, lp, inv.invoiceNo, false));
     }
     if (hasCredit && hasDebit) {
@@ -430,16 +431,6 @@ function validateSingleInvoice(
     errors.push(e("INV_044", "warning",
       `Fatura simplificada (FS) '${inv.invoiceNo}' com GrossTotal ${inv.documentTotals.grossTotal.toFixed(2)} > 1000.00 EUR.`,
       `${path}.DocumentTotals.GrossTotal`, inv.invoiceNo, false));
-  }
-
-  // INV_045: FS consumer NIF
-  if (inv.invoiceType !== "FS" && inv.invoiceType !== "VD" && inv.invoiceType !== "TV") {
-    const customer = saftData.masterFiles.customers.find((c) => c.customerID === inv.customerID);
-    if (customer?.customerTaxID === "999999990") {
-      errors.push(e("INV_045", "error",
-        `Fatura '${inv.invoiceNo}' (tipo ${inv.invoiceType}) com NIF genérico '999999990'.`,
-        `${path}.CustomerID`, inv.invoiceNo, false));
-    }
   }
 }
 

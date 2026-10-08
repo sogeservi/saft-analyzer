@@ -19,6 +19,9 @@ import type { ValidationError, Severity } from "@/lib/types/errors";
 import { SEVERITY_LABELS } from "@/lib/types/errors";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n";
+import { generateFixes, buildPatchDocument } from "@/lib/fixes/fix-engine";
+import { patchToJson } from "@/lib/fixes/patch-generator";
+import { downloadFile } from "@/lib/export/download-file";
 
 interface ErrorsViewProps {
   result: AnalysisResult;
@@ -94,29 +97,15 @@ export function ErrorsView({ result, onBack }: ErrorsViewProps) {
     setGenerating(true);
 
     try {
-      const response = await fetch("/api/fix", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fileName: result.fileName,
-          saftData: result.saftData,
-          selectedErrorCodes: [...selectedFixes],
-          errors: result.errors,
-        }),
-      });
-
-      if (!response.ok) throw new Error(t("Erro ao gerar correções"));
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download =
-        response.headers
-          .get("Content-Disposition")
-          ?.match(/filename="(.+)"/)?.[1] ?? "correcoes.json";
-      a.click();
-      URL.revokeObjectURL(url);
+      const selectedErrors = result.errors.filter(
+        (error) => error.autoFixable && selectedFixes.has(`${error.code}|${error.path}`),
+      );
+      const fixes = generateFixes(result.saftData, selectedErrors);
+      const json = patchToJson(buildPatchDocument("saft-upload.xml", fixes));
+      downloadFile(
+        new Blob([json], { type: "application/json;charset=utf-8" }),
+        "saft-fixes.json",
+      );
       toast.success(t("Documento de correções gerado"));
     } catch {
       toast.error(t("Erro ao gerar documento de correções"));

@@ -7,7 +7,7 @@ export interface EncodingResult {
 }
 
 export function detectEncoding(
-  buffer: Buffer | Uint8Array,
+  buffer: Uint8Array,
 ): EncodingResult {
   if (
     buffer.length >= 3 &&

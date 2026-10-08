@@ -3,24 +3,19 @@
 import { Loader2, FileText } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import type { UploadStage } from "@/components/upload/file-list";
 import { formatFileSize } from "@/lib/format";
 import { useLocale } from "@/lib/i18n";
 
 interface ProgressViewProps {
   fileName: string;
   fileSize: number;
-  stage: UploadStage;
-  queuePosition: number | null;
-  uploadProgress: number;
+  progress: number;
 }
 
 export function ProgressView({
   fileName,
   fileSize,
-  stage,
-  queuePosition,
-  uploadProgress,
+  progress,
 }: ProgressViewProps) {
   const { t } = useLocale();
   return (
@@ -41,27 +36,12 @@ export function ProgressView({
               </p>
             </div>
           </div>
-          {stage === "queue" ? (
-            <p className="text-center text-sm text-muted-foreground">
-              {queuePosition === null
-                ? t("A aguardar vaga para an\u00e1lise...")
-                : `${t("Na fila, posição")} ${queuePosition}`}
+          <div className="w-full space-y-2">
+            <p className="text-center text-sm text-muted-foreground" aria-live="polite">
+              {t("A processar validações XML, regras de negócio e cadeia de hash…")} · {progress}%
             </p>
-          ) : stage === "upload" ? (
-            <div className="w-full space-y-2">
-              <p className="text-center text-sm text-muted-foreground">
-                {t("A enviar ficheiro em partes")} · {uploadProgress}%
-              </p>
-              <Progress
-                value={uploadProgress}
-                aria-label={t("Progresso do carregamento")}
-              />
-            </div>
-          ) : (
-            <p className="text-center text-sm text-muted-foreground">
-              {t("A processar validações XML, regras de negócio e cadeia de hash…")}
-            </p>
-          )}
+            <Progress value={progress} aria-label={t("Progresso da análise")} />
+          </div>
         </CardContent>
       </Card>
     </div>

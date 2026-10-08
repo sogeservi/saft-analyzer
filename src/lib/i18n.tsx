@@ -1,45 +1,23 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useSyncExternalStore } from "react";
 import type { AppLocale } from "./locale";
 
 const messages: Record<AppLocale, Record<string, string>> = {
   pt: {},
   en: {
+    "Os ficheiros SAF-T são analisados localmente no navegador. Os ficheiros e resultados não são enviados para um servidor.": "SAF-T files are analyzed locally in your browser. Files and results are not sent to a server.",
+    "Progresso da análise": "Analysis progress",
+    "Este ficheiro SAF-T não é de faturação. TaxAccountingBasis": "This SAF-T file is not an invoicing file. TaxAccountingBasis",
+    "Só são aceites ficheiros de faturação (F, S, P, R, T).": "Only invoicing files (F, S, P, R, T) are supported.",
     "O limite por ficheiro é 100 MiB.": "The per-file limit is 100 MiB.",
-    "A aguardar vaga para an\u00e1lise...": "Waiting for an analysis slot...",
-    "Na fila, posição": "Queue position:",
-    "A enviar ficheiro em partes": "Uploading file in parts",
-    "Progresso do carregamento": "Upload progress",
-    "Não foi possível validar o endereço IP desta ligação.": "Could not verify this connection's IP address.",
-    "Indique um nome e tamanho de ficheiro válidos.": "Enter a valid file name and size.",
-    "Já existe uma análise sua ativa ou em fila.": "You already have an analysis active or queued.",
-    "A fila está cheia. Tente novamente dentro de momentos.": "The queue is full. Please try again shortly.",
-    "Não foi possível iniciar a análise deste ficheiro.": "Could not start analyzing this file.",
-    "A análise já não está disponível.": "This analysis is no longer available.",
-    "Número de bloco inválido.": "Invalid upload part number.",
-    "O bloco enviado é inválido ou já não é esperado.": "The uploaded part is invalid or no longer expected.",
-    "Não foi possível receber este bloco.": "Could not receive this upload part.",
-    "O carregamento ainda não terminou.": "The upload is not complete yet.",
-    "A análise não está disponível para processamento.": "This analysis is not available for processing.",
-    "Cada ligação partilhada pode conter no máximo 10 MiB.": "Each shared link can contain up to 10 MiB.",
-    "Este endere\u00e7o IP j\u00e1 tem 10 liga\u00e7\u00f5es ativas.": "This IP address already has 10 active links.",
-    "Atingiu o limite tempor\u00e1rio de gera\u00e7\u00e3o de relat\u00f3rios e liga\u00e7\u00f5es.": "The temporary report and link creation limit has been reached.",
     "Análise e validação de ficheiros SAF-T portugueses": "Analyze and validate Portuguese SAF-T files",
     "Repositório do SAF-T Analyzer no GitHub (abre num novo separador)": "SAF-T Analyzer GitHub repository (opens in a new tab)",
     "Analise e valide ficheiros SAF-T (PT). Veja erros, totais e resumos num só lugar.": "Analyze and validate SAF-T (PT) files. Review errors, totals, and summaries in one place.",
-    "O limite por ficheiro é 25 MiB.": "The per-file limit is 25 MiB.",
     "Ficheiro indisponível. Selecione-o novamente.": "File unavailable. Please select it again.",
     "Erro desconhecido.": "An unknown error occurred.",
     "Analisar": "Analyze",
     "Ver Resultados": "View results",
-    "Privacidade e partilha": "Privacy and sharing",
-    "O que acontece ao meu ficheiro?": "What happens to my file?",
-    "É enviado para análise e os resultados são mostrados aqui. Não guardamos o ficheiro nem os resultados.": "Your file is analyzed and the results are shown here. We do not save your file or results.",
-    "Posso partilhar os resultados?": "Can I share the results?",
-    "Sim. Se escolher criar um link, os dados apresentados serão guardados por até 24 horas. Qualquer pessoa com o link poderá vê-los.": "Yes. If you create a link, the displayed data is kept for up to 24 hours. Anyone with the link can view it.",
-    "E depois?": "What happens next?",
-    "O link e os dados partilhados são apagados automaticamente ao fim de 24 horas.": "The link and shared data are automatically deleted after 24 hours.",
     "Arraste ficheiros SAF-T para aqui": "Drag SAF-T files here",
     "ou clique para selecionar ficheiros .xml": "or click to select .xml files",
     "Pendente": "Pending",
@@ -54,19 +32,6 @@ const messages: Record<AppLocale, Record<string, string>> = {
     "exportado com sucesso": "exported successfully",
     "Relatório PDF": "PDF report",
     "Excel (.xlsx)": "Excel (.xlsx)",
-    "Partilhar": "Share",
-    "Partilhar análise": "Share analysis",
-    "O relatório inclui dados da empresa, clientes e documentos. Qualquer pessoa com o link poderá vê-los durante 24 horas.": "The report includes company, customer, and document data. Anyone with the link can view it for 24 hours.",
-    "A criar link…": "Creating link…",
-    "Criar link de 24 horas": "Create 24-hour link",
-    "Link de partilha": "Share link",
-    "Copiar link": "Copy link",
-    "Este link expira em": "This link expires on",
-    "Resposta inválida do servidor.": "Invalid server response.",
-    "Erro ao criar link": "Could not create link",
-    "Erro ao criar link de partilha": "Could not create sharing link",
-    "Link copiado": "Link copied",
-    "Não foi possível copiar o link.": "Could not copy the link.",
     "Voltar": "Back",
     "Cabeçalho": "Header",
     "Clientes": "Customers",
@@ -168,13 +133,12 @@ const messages: Record<AppLocale, Record<string, string>> = {
     "trimestre": "quarter",
     "ano": "year",
     "NIF": "Tax ID",
-    "Este ficheiro não inclui a lista de produtos ou a tabela de impostos. Exporte um SAF-T completo para validar os restantes dados.": "This file does not include the product list or tax table. Export a complete SAF-T file to validate the remaining data.",
-    "Nenhum ficheiro enviado.": "No file was uploaded.",
+    "Ficheiro SAF-T parcial. As validações de negócio não foram executadas.": "Partial SAF-T file. Business-rule checks were not run.",
+    "Este ficheiro não inclui a lista de produtos nem a tabela de impostos. O analisador não executa validações de negócio em ficheiros parciais; exporte um SAF-T completo para validar os restantes dados.": "This file does not include the product list or tax table. The analyzer skips business-rule checks for partial files; export a complete SAF-T file to validate the remaining data.",
+    "Este ficheiro não inclui a lista de produtos; a tabela de impostos está presente. O analisador não executa validações de negócio em ficheiros parciais; exporte um SAF-T completo para validar os restantes dados.": "This file does not include the product list; the tax table is present. The analyzer skips business-rule checks for partial files; export a complete SAF-T file to validate the remaining data.",
+    "Este ficheiro não inclui a tabela de impostos; a lista de produtos está presente. O analisador não executa validações de negócio em ficheiros parciais; exporte um SAF-T completo para validar os restantes dados.": "This file does not include the tax table; the product list is present. The analyzer skips business-rule checks for partial files; export a complete SAF-T file to validate the remaining data.",
     "Não foi possível processar este ficheiro SAF-T.": "Could not process this SAF-T file.",
     "Dados de análise inválidos.": "Invalid analysis data.",
-    "Não foi possível criar um link agora. Tente novamente mais tarde.": "Could not create a link right now. Please try again later.",
-    "Não foi possível criar o link de partilha.": "Could not create the sharing link.",
-    "Este link expirou ou não está disponível.": "This link has expired or is unavailable.",
     "Made by SogeServi": "Made by SogeServi",
     "Detalhes completos": "Full details",
     "Item": "Item",
@@ -284,6 +248,8 @@ const messages: Record<AppLocale, Record<string, string>> = {
     "Localidade": "City",
     "NIF do cliente": "Customer tax ID",
     "NIF do fornecedor": "Supplier tax ID",
+    "O NIF genérico '999999990' só pode identificar o cliente 'Consumidor final'.": "The generic tax ID '999999990' can only identify the 'Consumidor final' customer.",
+    "No SAF-T (PT), o NIF 999999990 é reservado ao cliente genérico 'Consumidor final'. Use este registo quando o comprador não forneceu dados de identificação. Se forneceu nome, morada ou NIF, associe a fatura a um registo próprio. Este NIF é apenas para o SAF-T: na fatura, indique o NIF do consumidor se este o solicitar; caso contrário, deixe o campo inutilizado ou indique 'consumidor final'.": "In SAF-T (PT), NIF 999999990 is reserved for the generic 'Consumidor final' customer. Use this record when the buyer provided no identifying details. If they provided a name, address, or tax ID, link the invoice to a separate customer record. This number is for SAF-T only: on the invoice, include the consumer's tax ID if requested; otherwise leave the field blank or write 'consumidor final'.",
     "Contacto": "Contact",
     "Código EAC": "EAC code",
     "Tipo de transação": "Transaction type",
@@ -365,6 +331,15 @@ const messages: Record<AppLocale, Record<string, string>> = {
 
 const LocaleContext = createContext<AppLocale>("pt");
 
+function subscribeLocaleChange(onChange: () => void): () => void {
+  window.addEventListener("languagechange", onChange);
+  return () => window.removeEventListener("languagechange", onChange);
+}
+
+function getBrowserLocale(): AppLocale {
+  return resolveLocale(navigator.language);
+}
+
 export function LocaleProvider({
   locale,
   children,
@@ -372,7 +347,17 @@ export function LocaleProvider({
   locale: AppLocale;
   children: React.ReactNode;
 }) {
-  return <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>;
+  const activeLocale = useSyncExternalStore(
+    subscribeLocaleChange,
+    getBrowserLocale,
+    () => locale,
+  );
+
+  useEffect(() => {
+    document.documentElement.lang = activeLocale === "pt" ? "pt-PT" : "en";
+  }, [activeLocale]);
+
+  return <LocaleContext.Provider value={activeLocale}>{children}</LocaleContext.Provider>;
 }
 
 export function useLocale() {

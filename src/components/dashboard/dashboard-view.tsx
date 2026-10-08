@@ -16,8 +16,8 @@ import {
   MonitorDown,
 } from "lucide-react";
 import { APP_BUILD_INFO } from "@/lib/build-info";
-import { ShareDialog } from "@/components/export/share-dialog";
 import { useLocale } from "@/lib/i18n";
+import { getPartialSaftNotice } from "@/lib/analysis/partial-saft-notice";
 
 interface DashboardViewProps {
   result: AnalysisResult;
@@ -29,6 +29,7 @@ export function DashboardView({
   onSectionSelect,
 }: DashboardViewProps) {
   const { t, languageTag } = useLocale();
+  const partialSaftNotice = getPartialSaftNotice(result.saftData);
   const address = result.header.companyAddress;
   const companyDetails = [
     {
@@ -134,15 +135,14 @@ export function DashboardView({
                 ))}
               </div>
             )}
-            {result.saftType === "partial" && (
+            {partialSaftNotice && (
               <p className="mt-3 max-w-2xl text-sm text-rose-100">
-                {t("Este ficheiro não inclui a lista de produtos ou a tabela de impostos. Exporte um SAF-T completo para validar os restantes dados.")}
+                {t(partialSaftNotice)}
               </p>
             )}
           </div>
           <div className="flex shrink-0 gap-2 [&_button]:border-white/30 [&_button]:bg-white/10 [&_button]:text-white [&_button:hover]:bg-white/20 [&_button:hover]:text-white [&_button]:shadow-none [&_button]:focus-visible:ring-white/70">
             <ExportMenu result={result} />
-            <ShareDialog result={result} />
           </div>
         </div>
         <p className="mt-3 text-right text-xs text-slate-400">

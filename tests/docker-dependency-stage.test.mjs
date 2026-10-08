@@ -6,15 +6,14 @@ import { fileURLToPath } from "node:url";
 
 const projectRoot = fileURLToPath(new URL("..", import.meta.url));
 
-test("copies the npm prepare script before installing dependencies in Docker", async () => {
+test("builds and serves a static export from the production container", async () => {
   // #given
   const dockerfile = await readFile(join(projectRoot, "Dockerfile"), "utf8");
 
   // #when
-  const depsStage = dockerfile.split("FROM base AS builder")[0];
-  const installerCopy = depsStage.indexOf("COPY scripts/install-git-hooks.mjs");
-  const npmInstall = depsStage.indexOf("RUN npm ci");
-
   // #then
-  assert.ok(installerCopy >= 0 && installerCopy < npmInstall);
+  assert.match(dockerfile, /RUN npm run build/);
+  assert.match(dockerfile, /COPY --from=builder \/app\/out \/usr\/share\/nginx\/html/);
+  assert.match(dockerfile, /FROM nginx:alpine AS runner/);
+  assert.doesNotMatch(dockerfile, /next start|server\.js/);
 });

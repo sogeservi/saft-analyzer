@@ -1,5 +1,4 @@
 import sax from "sax";
-import { Readable } from "stream";
 import type {
   SaftFile,
   SaftHeader,
@@ -125,196 +124,163 @@ export class XmlParseError extends Error {
 }
 
 export async function parseSaftStream(
-  input: ReadableStream<Uint8Array> | Buffer,
+  input: ReadableStream<Uint8Array>,
   onProgress?: ProgressCallback,
+  encoding = "utf-8",
 ): Promise<SaftFile> {
-  return new Promise((resolve, reject) => {
-    const parser = sax.createStream(true, { trim: true });
+  const parser = sax.parser(true, { trim: true });
+  const stack: Frame[] = [];
+  let rootResult: Raw | null = null;
+  let currentSection = "";
+  let parseError: XmlParseError | null = null;
+  const counts: SectionCounts = {
+    customers: 0,
+    suppliers: 0,
+    products: 0,
+    taxTableEntries: 0,
+    glEntries: 0,
+    invoices: 0,
+    payments: 0,
+    stockMovements: 0,
+    workDocuments: 0,
+  };
 
-    const stack: Frame[] = [];
-    let rootResult: Raw | null = null;
-    let currentSection = "";
-    const counts: SectionCounts = {
-      customers: 0,
-      suppliers: 0,
-      products: 0,
-      taxTableEntries: 0,
-      glEntries: 0,
-      invoices: 0,
-      payments: 0,
-      stockMovements: 0,
-      workDocuments: 0,
-    };
+  parser.onopentag = (node) => {
+    const localName = node.name.includes(":")
+      ? node.name.split(":").pop()!
+      : node.name;
+    const name = toCamelCase(localName);
+    if (stack.length > 0) stack[stack.length - 1].hasChildElements = true;
+    stack.push({ name, properties: {}, text: "", hasChildElements: false });
 
-    parser.on("opentag", (node: sax.Tag) => {
-      const localName = node.name.includes(":")
-        ? node.name.split(":").pop()!
-        : node.name;
-      const name = toCamelCase(localName);
-
-      if (stack.length > 0) {
-        stack[stack.length - 1].hasChildElements = true;
-      }
-
-      stack.push({
-        name,
-        properties: {},
-        text: "",
-        hasChildElements: false,
+    if (stack.length === 2 && localName !== currentSection) {
+      currentSection = localName;
+      onProgress?.({
+        phase: "xml-parse",
+        percentage: estimateProgress(localName),
+        currentSection: localName,
+        counts: { ...counts },
+        errorsFound: 0,
       });
-
-      if (stack.length === 2) {
-        const section = localName;
-        if (section !== currentSection) {
-          currentSection = section;
-          onProgress?.({
-            phase: "xml-parse",
-            percentage: estimateProgress(section),
-            currentSection: section,
-            counts: { ...counts },
-            errorsFound: 0,
-          });
-        }
-      }
-    });
-
-    parser.on("text", (text: string) => {
-      if (stack.length > 0) {
-        stack[stack.length - 1].text += text;
-      }
-    });
-
-    parser.on("cdata", (cdata: string) => {
-      if (stack.length > 0) {
-        stack[stack.length - 1].text += cdata;
-      }
-    });
-
-    parser.on("closetag", () => {
-      const frame = stack.pop();
-      if (!frame) return;
-
-      let value: unknown;
-      if (!frame.hasChildElements) {
-        const text = frame.text.trim();
-        if (NUMERIC_FIELDS.has(frame.name)) {
-          const n = parseFloat(text);
-          value = isNaN(n) ? text : n;
-        } else {
-          value = text;
-        }
-      } else {
-        value = frame.properties;
-      }
-
-      if (stack.length > 0) {
-        const parent = stack[stack.length - 1];
-        const existing = parent.properties[frame.name];
-        if (existing !== undefined) {
-          if (Array.isArray(existing)) {
-            existing.push(value);
-          } else {
-            parent.properties[frame.name] = [existing, value];
-          }
-        } else {
-          parent.properties[frame.name] = value;
-        }
-
-        trackRecordCount(frame.name);
-      } else {
-        rootResult = frame.hasChildElements
-          ? (frame.properties as Raw)
-          : null;
-      }
-    });
-
-    function trackRecordCount(elementName: string): void {
-      switch (elementName) {
-        case "customer":
-          counts.customers++;
-          break;
-        case "supplier":
-          counts.suppliers++;
-          break;
-        case "product":
-          counts.products++;
-          break;
-        case "taxTableEntry":
-          counts.taxTableEntries++;
-          break;
-        case "transaction":
-          counts.glEntries++;
-          break;
-        case "invoice":
-          counts.invoices++;
-          break;
-        case "payment":
-          counts.payments++;
-          break;
-        case "stockMovement":
-          counts.stockMovements++;
-          break;
-        case "workDocument":
-          counts.workDocuments++;
-          break;
-      }
     }
+  };
 
-    function estimateProgress(section: string): number {
-      switch (section) {
-        case "Header":
-          return 5;
-        case "MasterFiles":
-          return 15;
-        case "GeneralLedgerEntries":
-          return 40;
-        case "SourceDocuments":
-          return 70;
-        default:
-          return 0;
+  parser.ontext = (text) => {
+    if (stack.length > 0) stack[stack.length - 1].text += text;
+  };
+
+  parser.oncdata = (cdata) => {
+    if (stack.length > 0) stack[stack.length - 1].text += cdata;
+  };
+
+  parser.onclosetag = () => {
+    const frame = stack.pop();
+    if (!frame) return;
+
+    let value: unknown;
+    if (!frame.hasChildElements) {
+      const text = frame.text.trim();
+      if (NUMERIC_FIELDS.has(frame.name)) {
+        const n = parseFloat(text);
+        value = isNaN(n) ? text : n;
+      } else {
+        value = text;
       }
-    }
-
-    parser.on("error", (err: Error) => {
-      const { line, column } = parser._parser;
-      const message = err.message.split(/\r?\nLine:/, 1)[0].trim();
-      reject(new XmlParseError(message, line + 1, column + 1));
-    });
-
-    parser.on("end", () => {
-      if (!rootResult) {
-        reject(new XmlParseError("O ficheiro está vazio ou não contém um elemento XML válido.", 1, 1));
-        return;
-      }
-
-      try {
-        const saftFile = mapToSaftFile(rootResult);
-        onProgress?.({
-          phase: "complete",
-          percentage: 100,
-          counts: { ...counts },
-          errorsFound: 0,
-        });
-        resolve(saftFile);
-      } catch (err) {
-        reject(err);
-      }
-    });
-
-    if (Buffer.isBuffer(input)) {
-      const readable = new Readable();
-      readable.push(input);
-      readable.push(null);
-      readable.pipe(parser);
     } else {
-      const nodeStream = Readable.fromWeb(
-        input as import("stream/web").ReadableStream,
-      );
-      nodeStream.pipe(parser);
+      value = frame.properties;
     }
-  });
-}
 
+    if (stack.length > 0) {
+      const parent = stack[stack.length - 1];
+      const existing = parent.properties[frame.name];
+      if (existing !== undefined) {
+        if (Array.isArray(existing)) existing.push(value);
+        else parent.properties[frame.name] = [existing, value];
+      } else {
+        parent.properties[frame.name] = value;
+      }
+      trackRecordCount(frame.name);
+    } else {
+      rootResult = frame.hasChildElements ? (frame.properties as Raw) : null;
+    }
+  };
+
+  function trackRecordCount(elementName: string): void {
+    switch (elementName) {
+      case "customer": counts.customers++; break;
+      case "supplier": counts.suppliers++; break;
+      case "product": counts.products++; break;
+      case "taxTableEntry": counts.taxTableEntries++; break;
+      case "transaction": counts.glEntries++; break;
+      case "invoice": counts.invoices++; break;
+      case "payment": counts.payments++; break;
+      case "stockMovement": counts.stockMovements++; break;
+      case "workDocument": counts.workDocuments++; break;
+    }
+  }
+
+  function estimateProgress(section: string): number {
+    switch (section) {
+      case "Header": return 5;
+      case "MasterFiles": return 15;
+      case "GeneralLedgerEntries": return 40;
+      case "SourceDocuments": return 70;
+      default: return 0;
+    }
+  }
+
+  parser.onerror = (error) => {
+    const { line, column } = parser;
+    const message = error.message.split(/\r?\nLine:/, 1)[0].trim();
+    parseError = new XmlParseError(message, line + 1, column + 1);
+  };
+
+  const isIso885915 = encoding.toUpperCase() === "ISO-8859-15";
+  const decoder = new TextDecoder(isIso885915 ? "windows-1252" : encoding);
+  const decode = (bytes: Uint8Array, options?: TextDecodeOptions): string => {
+    const text = decoder.decode(bytes, options);
+    if (!isIso885915) return text;
+    const replacements: Record<string, string> = {
+      "\u00a4": "\u20ac",
+      "\u00a6": "\u0160",
+      "\u00a8": "\u0161",
+      "\u00b4": "\u017d",
+      "\u00b8": "\u017e",
+      "\u00bc": "\u0152",
+      "\u00bd": "\u0153",
+      "\u00be": "\u0178",
+    };
+    return text.replace(/[\u00a4\u00a6\u00a8\u00b4\u00b8\u00bc\u00bd\u00be]/g, (char) => replacements[char]);
+  };
+  const reader = input.getReader();
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      parser.write(decode(value, { stream: true }));
+      if (parseError) throw parseError;
+    }
+    parser.write(decode(new Uint8Array()));
+    parser.close();
+    if (parseError) throw parseError;
+    if (!rootResult) {
+      throw new XmlParseError("O ficheiro est\u00e1 vazio ou n\u00e3o cont\u00e9m um elemento XML v\u00e1lido.", 1, 1);
+    }
+    const saftFile = mapToSaftFile(rootResult);
+    onProgress?.({
+      phase: "complete",
+      percentage: 100,
+      counts: { ...counts },
+      errorsFound: 0,
+    });
+    return saftFile;
+  } catch (error) {
+    await reader.cancel(error).catch(() => undefined);
+    throw error;
+  } finally {
+    reader.releaseLock();
+  }
+}
 function mapAddress(raw: unknown): SaftAddress {
   const r = obj(raw);
   return {

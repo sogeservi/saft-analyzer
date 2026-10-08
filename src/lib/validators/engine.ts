@@ -26,6 +26,7 @@ import { validateWorkingDocuments } from "./working-documents";
 import { validateCrossReferences } from "./cross-references";
 import { validateHashChains } from "./hash-chain";
 import { validateTaxIds } from "./tax-id";
+import { getPartialSaftNotice } from "../analysis/partial-saft-notice";
 
 export type ProgressCallback = (progress: AnalysisProgress) => void;
 
@@ -39,19 +40,15 @@ export function runValidation(
   const errors: ValidationError[] = [];
   const hashChainResults: HashChainResult[] = [];
   errors.push(...validatePeriodEnd(saftData));
-  const saftType =
-    saftData.masterFiles.products.length > 0 &&
-    saftData.masterFiles.taxTable.length > 0
-      ? "complete"
-      : "partial";
+  const partialSaftNotice = getPartialSaftNotice(saftData);
+  const saftType = partialSaftNotice ? "partial" : "complete";
 
-  if (saftType === "partial") {
+  if (partialSaftNotice) {
     errors.push({
       code: "SAFT_PARTIAL",
       severity: "critical",
-      message: "Ficheiro SAF-T parcial. É necessária uma exportação completa para análise.",
-      explanation:
-        "A lista de produtos ou a tabela de impostos está em falta. Exporte o ficheiro SAF-T completo e volte a analisá-lo.",
+      message: "Ficheiro SAF-T parcial. As validações de negócio não foram executadas.",
+      explanation: partialSaftNotice,
       path: "MasterFiles",
       section: "SAFT",
       autoFixable: false,
