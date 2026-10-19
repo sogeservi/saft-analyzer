@@ -30,14 +30,16 @@ try {
     ["accounting-basis", "src/lib/validators/accounting-basis.ts"],
     ["sales-invoices", "src/lib/validators/sales-invoices.ts"],
     ["process-saft", "src/lib/analysis/process-saft.ts"],
+    ["analyze-file", "src/lib/analysis/analyze-file.ts"],
+    ["analysis-worker", "src/lib/workers/analysis.worker.ts"],
   ]) {
     await build({
       entryPoints: [join(projectRoot, path)],
       outfile: join(buildDir, `${name}.cjs`),
       bundle: true,
-      platform: "node",
-      format: "cjs",
-      target: "node24",
+      platform: name === "analysis-worker" ? "browser" : "node",
+      format: name === "analysis-worker" ? "esm" : "cjs",
+      target: name === "analysis-worker" ? "es2022" : "node24",
     });
   }
 

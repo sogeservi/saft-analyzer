@@ -1,4 +1,5 @@
 import type { AnalysisProgress, AnalysisResult } from "@/lib/types/analysis";
+import { APP_BUILD_INFO } from "@/lib/build-info";
 
 interface AnalysisWorkerResponse {
   type: "progress" | "complete" | "error";
@@ -26,7 +27,8 @@ export function analyzeFileInWorker(
   onProgress: (progress: AnalysisProgress) => void,
 ): Promise<AnalysisResult> {
   return new Promise((resolve, reject) => {
-    const worker = new Worker("/analysis.worker.js", { type: "module" });
+    const workerUrl = `/analysis.worker.js?v=${encodeURIComponent(APP_BUILD_INFO.version)}&build=${encodeURIComponent(APP_BUILD_INFO.date)}`;
+    const worker = new Worker(workerUrl, { type: "module" });
     const finish = () => worker.terminate();
 
     worker.onmessage = (event: MessageEvent<AnalysisWorkerResponse>) => {

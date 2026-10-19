@@ -17,3 +17,14 @@ test("builds and serves a static export from the production container", async ()
   assert.match(dockerfile, /FROM nginx:alpine AS runner/);
   assert.doesNotMatch(dockerfile, /next start|server\.js/);
 });
+
+test("the stable worker endpoint is not cached while hashed Next assets remain immutable", async () => {
+  const config = await readFile(join(projectRoot, "nginx.conf"), "utf8");
+  const workerLocation = config.match(/location = \/analysis\.worker\.js \{([^}]+)\}/)?.[1];
+  assert.ok(workerLocation, "the analysis worker needs its own cache policy");
+  assert.match(workerLocation, /add_header Cache-Control "no-store" always/);
+  for (const header of ["X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy", "Permissions-Policy"]) {
+    assert.ok(workerLocation.includes(header), `${header} must remain present in the worker location`);
+  }
+  assert.match(config, /location \/_next\/static\/ \{[^}]+public, immutable/);
+});
