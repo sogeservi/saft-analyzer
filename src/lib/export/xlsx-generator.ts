@@ -57,6 +57,14 @@ function addResumoSheet(wb: ExcelJS.Workbook, r: AnalysisResult): void {
   ws.addRow({ field: "NIF do produtor de software", value: r.header.productCompanyTaxID });
   ws.addRow({ field: "Certificado de software", value: r.header.softwareCertificateNumber });
   ws.addRow({ field: "Tipo SAF-T", value: r.saftType === "complete" ? "Completo" : "Parcial" });
+  if (r.header.taxAccountingBasis === "E" || r.header.taxAccountingBasis === "S") {
+    ws.addRow({
+      field: "Regime de faturação",
+      value: r.header.taxAccountingBasis === "E"
+        ? "Faturação emitida por terceiros (E)"
+        : "Autofaturação (S)",
+    });
+  }
   ws.addRow({ field: "Versão SAF-T", value: r.saftVersion });
   ws.addRow({ field: "Período", value: `${r.header.startDate} a ${r.header.endDate}` });
   ws.addRow({ field: "Data de Análise", value: new Date(r.analyzedAt) }).getCell(2).numFmt = "yyyy-mm-dd hh:mm";

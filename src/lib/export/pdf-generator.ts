@@ -101,6 +101,11 @@ function escapeXml(value: string): string {
 }
 
 function buildMetadataTable(result: AnalysisResult): Content {
+  const accountingBasisLabel = result.header.taxAccountingBasis === "E"
+    ? "Faturação emitida por terceiros (E)"
+    : result.header.taxAccountingBasis === "S"
+      ? "Autofaturação (S)"
+      : null;
   const address = result.header.companyAddress;
   const companyAddress = [
     address?.addressDetail,
@@ -114,6 +119,9 @@ function buildMetadataTable(result: AnalysisResult): Content {
       widths: [105, "*", 95, "*"],
       body: [
         [textCell("SAF-T", true), result.saftType === "complete" ? "Completo" : "Parcial", textCell("Versão", true), result.saftVersion],
+        ...(accountingBasisLabel
+          ? [[textCell("Regime de faturação", true), { text: accountingBasisLabel, colSpan: 3 }, {}, {}]]
+          : []),
         [textCell("Período", true), `${result.header.startDate} a ${result.header.endDate}`, textCell("Analisado", true), new Date(result.analyzedAt).toLocaleString("pt-PT")],
         [textCell("Empresa", true), compact(result.header.companyName), textCell("Nome comercial", true), compact(result.header.businessName)],
         [textCell("NIF", true), result.header.taxRegistrationNumber, textCell("ID da empresa", true), compact(result.header.companyID)],

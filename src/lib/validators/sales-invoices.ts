@@ -80,6 +80,9 @@ export function validateSalesInvoices(saftData: SaftFile): ValidationError[] {
     validateSingleInvoice(inv, path, errors, saftData, customerIds, productCodes, taxCombos, invoiceNos, seriesAtcud);
   }
 
+  // Self-billing exports contain only the documents for one supplier, so gaps can be legitimate.
+  if (saftData.header.taxAccountingBasis === "S") return errors;
+
   // INV_027: Sequential numbering gaps (per series)
   const seriesNumbers = new Map<string, number[]>();
   for (const inv of si.invoices) {

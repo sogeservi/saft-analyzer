@@ -14,6 +14,7 @@ import type {
 } from "../types/analysis";
 import { v4 as uuidv4 } from "uuid";
 import { validateHeader, validatePeriodEnd } from "./header";
+import { validateAccountingBasis } from "./accounting-basis";
 import { validateCustomers } from "./customers";
 import { validateSuppliers } from "./suppliers";
 import { validateProducts } from "./products";
@@ -62,6 +63,7 @@ export function runValidation(
     currentSection: "Header",
   });
   errors.push(...validateHeader(saftData));
+  errors.push(...validateAccountingBasis(saftData));
 
   onProgress?.({
     phase: "business-rules",

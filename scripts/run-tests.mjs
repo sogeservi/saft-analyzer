@@ -4,6 +4,7 @@ import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
+import { build } from "esbuild";
 
 const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const buildDir = await mkdtemp(join(tmpdir(), "saft-analyzer-tests-"));
@@ -23,6 +24,21 @@ try {
       },
     });
     await writeFile(join(buildDir, `${name}.cjs`), output.outputText);
+  }
+
+  for (const [name, path] of [
+    ["accounting-basis", "src/lib/validators/accounting-basis.ts"],
+    ["sales-invoices", "src/lib/validators/sales-invoices.ts"],
+    ["process-saft", "src/lib/analysis/process-saft.ts"],
+  ]) {
+    await build({
+      entryPoints: [join(projectRoot, path)],
+      outfile: join(buildDir, `${name}.cjs`),
+      bundle: true,
+      platform: "node",
+      format: "cjs",
+      target: "node24",
+    });
   }
 
   const result = spawnSync(process.execPath, ["--test"], {

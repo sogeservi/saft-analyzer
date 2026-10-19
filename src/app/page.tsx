@@ -11,6 +11,7 @@ import {
 } from "@/components/upload/file-list";
 import { ProgressView } from "@/components/processing/progress-view";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
+import { AccountingBasisNotice } from "@/components/analysis/accounting-basis-notice";
 import { SectionView } from "@/components/sections/section-view";
 import { ErrorsView } from "@/components/errors/errors-view";
 import { Button } from "@/components/ui/button";
@@ -208,7 +209,7 @@ export default function HomePage() {
         if (error instanceof AnalysisWorkerError && error.response.code === "UNSUPPORTED_BASIS") {
           const basis = error.response.basis ?? "?";
           message = t("Este ficheiro SAF-T não é de faturação. TaxAccountingBasis") +
-            `="${basis}". ` + t("Só são aceites ficheiros de faturação (F, S, P, R, T).");
+            `="${basis}". ` + t("Só são aceites ficheiros de faturação (E, F, S, P, R, T).");
         }
         dispatch({ type: "SET_FILE_STATUS", id: entry.id, status: "error", error: message });
         toast.error(t("Erro ao analisar") + " " + entry.name + ": " + message);
@@ -338,20 +339,23 @@ function ResultsView({
       </header>
 
       <main className="px-6 py-6">
-        {section === null ? (
-          <DashboardView result={result} onSectionSelect={onSectionSelect} />
-        ) : section === "errors" ? (
-          <ErrorsView
-            result={result}
-            onBack={() => onSectionSelect(null)}
-          />
-        ) : (
-          <SectionView
-            result={result}
-            section={section}
-            onBack={() => onSectionSelect(null)}
-          />
-        )}
+        <div className="mx-auto max-w-screen-2xl space-y-6">
+          <AccountingBasisNotice header={result.header} />
+          {section === null ? (
+            <DashboardView result={result} onSectionSelect={onSectionSelect} />
+          ) : section === "errors" ? (
+            <ErrorsView
+              result={result}
+              onBack={() => onSectionSelect(null)}
+            />
+          ) : (
+            <SectionView
+              result={result}
+              section={section}
+              onBack={() => onSectionSelect(null)}
+            />
+          )}
+        </div>
       </main>
     </div>
   );

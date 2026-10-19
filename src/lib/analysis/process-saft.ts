@@ -55,7 +55,7 @@ export async function processSaftFile(
   };
   const saftData = await parseSaftStream(file.stream(), parseProgress, selectedEncoding);
 
-  const invoicingBases = new Set(["F", "S", "P", "R", "T"]);
+  const invoicingBases = new Set(["E", "F", "S", "P", "R", "T"]);
   const basis = saftData.header.taxAccountingBasis;
   if (basis && !invoicingBases.has(basis)) {
     throw new UnsupportedSaftBasisError(basis);

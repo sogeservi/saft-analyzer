@@ -1,0 +1,56 @@
+rules:
+  - id: BASIS_E_001
+    name: Emitente terceiro em falta
+    description: HeaderComment obrigatório em ficheiros E
+    severity: error
+    section: Header
+    enabled: true
+
+  - id: BASIS_E_002
+    name: NIF do emitente terceiro
+    description: NIF de nove dígitos não identificado no comentário livre
+    severity: warning
+    section: Header
+    enabled: true
+
+  - id: BASIS_E_003
+    name: Confirmar emitente terceiro
+    description: Confirmar manualmente o nome do emitente e o local das bases de dados
+    severity: info
+    section: Header
+    enabled: true
+
+  - id: BASIS_E_004
+    name: Indicador de faturação por terceiros
+    description: ThirdPartiesBillingIndicator deve ser 1 nos documentos do ficheiro E
+    severity: error
+    section: SalesInvoices
+    enabled: true
+
+  - id: BASIS_S_001
+    name: Estado de autofaturação
+    description: InvoiceStatus deve ser S ou A para documentos anulados no ficheiro S
+    severity: error
+    section: SalesInvoices
+    enabled: true
+
+  - id: BASIS_S_002
+    name: Indicador de autofaturação
+    description: SpecialRegimes.SelfBillingIndicator deve ser 1 no ficheiro S
+    severity: error
+    section: SalesInvoices
+    enabled: true
+
+  - id: BASIS_S_003
+    name: Acordo de autofaturação
+    description: Customer.SelfBillingIndicator deve ser 1 para o emitente de autofaturas
+    severity: error
+    section: SalesInvoices
+    enabled: true
+
+  - id: BASIS_S_004
+    name: Identidade do emitente de autofaturas
+    description: O NIF do cliente emitente deve ser distinto do NIF do fornecedor no cabeçalho
+    severity: error
+    section: SalesInvoices
+    enabled: true
